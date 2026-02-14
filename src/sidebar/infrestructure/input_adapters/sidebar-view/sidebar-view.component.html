@@ -1,0 +1,29 @@
+<div
+  class="card flex flex-column justify-content-between container"
+  style="height: 100%">
+  <p-menu [model]="items" styleClass="w-full md:w-15rem">
+    <ng-template pTemplate="start">
+      <span class="inline-flex align-items-center gap-1 px-2 py-2 title">
+        <span>
+          <strong>Mantenimiento Diario</strong>
+        </span>
+      </span>
+    </ng-template>
+    <ng-template pTemplate="end">
+      <button
+        pRipple
+        class="absolute left-0 right-0 avatar overflow-hidden w-full p-link flex align-items-center p-2 pl-3 text-color hover:surface-200 border-noround"
+      >
+        <p-avatar
+          image="assets\user.png"
+          class="mr-2"
+          shape="circle"
+        />
+        <span class="inline-flex flex-column">
+          <span class="font-bold">{{ userData?.name }}</span>
+          <span class="text-sm">{{ userData?.profile?.profile }}</span>
+        </span>
+      </button>
+    </ng-template>
+  </p-menu>
+</div>

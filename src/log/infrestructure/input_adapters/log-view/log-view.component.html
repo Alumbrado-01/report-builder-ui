@@ -1,0 +1,52 @@
+<p-dialog
+    [header]="dialogTitle"
+    [modal]="true"
+    [(visible)]="display"
+    [style]="{ width: '70rem', height: '45rem' }"
+    (onHide)="closeDialog()"
+  >
+    <div class="flex justify-items-start">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          class="filter-global"
+          (input)="applyFilterGlobal($event, 'contains')"
+          placeholder="Buscar...."
+        />
+      </span>
+    </div>
+    <div class="mx-3">
+      <p-table
+        #dt
+        [globalFilterFields]="['date', 'operation', 'user.name']"
+        [value]="logs"
+        [loading]="loading"
+        [paginator]="true"
+        [rows]="10"
+        scrollable="true"
+        [scrollHeight]="'35rem'"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th scope="col" style="width: 10rem">Fecha</th>
+            <th scope="col" style="width: 40rem">Operación</th>
+            <th scope="col" style="width: 10rem">Usuario</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-log>
+          <tr>
+            <td>{{ log.date }}</td>
+            <td>{{ log.operation }}</td>
+            <td>{{ log.user.name }}</td>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="emptymessage">
+          <tr>
+            <td colspan="4" class="text-center">No se encontraron logs</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-dialog>

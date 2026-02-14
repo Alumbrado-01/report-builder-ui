@@ -1,0 +1,33 @@
+.filter-global {
+  border-radius: 10px;
+  border: solid 1px #9a7d0a;
+  height: 39px;
+  padding-left: 2rem;
+  width: 260px;
+}
+
+:host ::ng-deep .p-dialog {
+  border: solid 3px #9a7d0a;
+  border-radius: 10px;
+}
+
+@media (max-width: 767px) {
+
+.search {
+  display: flex;
+  flex-direction: column !important;
+  align-items: stretch;
+}
+
+.main {
+  width: 91vw;
+  display: block;
+}
+}
+
+th, td {
+  text-align: center;
+  font-size: 12px;
+  height: 20px;
+}
+

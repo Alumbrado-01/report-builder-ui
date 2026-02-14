@@ -1,0 +1,261 @@
+<div class="main">
+  <div class="title"><h1>Registro Mantenimiento Diario</h1></div>
+
+  <div class="card flex justify-content-between m-5 search">
+    <div class="flex justify-items-start">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          class="filter-global"
+          (input)="applyFilterGlobal($event, 'contains')"
+          placeholder="Buscar...."
+        />
+      </span>
+    </div>
+
+    <p-button
+      class="newUser"
+      (onClick)="createUser()"
+      label="Registro de Atención"
+      styleClass="p-button-primary"
+    ></p-button>
+  </div>
+
+  <div class="mx-3">
+    <p-table
+      #dt
+      [globalFilterFields]="[
+        'name',
+        'mail',
+        'user_profile.profile',
+        'depot.name',
+        'area.name',
+        'active'
+      ]"
+      [value]="filteredUsers"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [tableStyle]="{ 'min-width': '60rem', 'height': '32rem' }"
+      scrollable="true"
+      [scrollHeight]="'30rem'"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col">Vialidad</th>
+          <th scope="col">Actividad</th>
+          <th scope="col">Alcaldia</th>
+          <th scope="col">Zona</th>
+          <th scope="col">Programa</th>
+          <th scope="col">Coordenada X</th>
+          <th scope="col">Coordenada Y</th>
+          <th scope="col">PDLs Viales</th>
+          <th scope="col">PDLs Peatonales</th>
+          <th scope="col">PDLs en Servicio</th>
+          <th scope="col">Zona/Cuadrante</th>
+          <th scope="col">Tipo</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>{{ user.name }}</td>
+          <td>{{ user.mail }}</td>
+          <td>{{ user.profile?.profile }}</td>
+          <td>{{ user.area.name }}</td>
+          <td>{{ user.active ? "Activo" : "Inactivo" }}</td>
+          <td class="text-center">
+            <p-button
+              (onClick)="showDialog(user)"
+              icon="pi pi-pencil"
+              styleClass="p-button-text"
+              [style]="{ 'margin-right': '.5rem' }"
+            ></p-button>
+            <p-button
+              (onClick)="viewLogs(user.idUser)"
+              icon="pi pi-book"
+              styleClass="p-button-text p-button-danger"
+            ></p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center">No se encontraron registros.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <p-dialog
+    [header]="dialogTitle"
+    [modal]="true"
+    [(visible)]="visible"
+    [style]="{ width: '40rem' }"
+  >
+    <span class="p-text-secondary block my-5">
+      {{
+        dialogMode === "create"
+          ? "Ingresa la información :"
+          : "Actualizar información del usuario:"
+      }}
+    </span>
+
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="road" class="font-semibold w-6rem"> Vialidad </label>
+      <p-dropdown
+        id="road"
+        [options]="roads"
+        class="flex-auto"
+        [(ngModel)]="selectedArea"
+        optionLabel="name"
+        placeholder="Vialidad"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="activity" class="font-semibold w-6rem"> Actividad Realizada </label>
+      <p-dropdown
+        id="activity"
+        [options]="activities"
+        class="flex-auto"
+        [(ngModel)]="selectedArea"
+        optionLabel="name"
+        placeholder="Actividad Realizada"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="area" class="font-semibold w-6rem"> Alcaldia </label>
+      <p-dropdown
+        id="area"
+        [options]="mayoraltyList"
+        class="flex-auto"
+        [(ngModel)]="selectedArea"
+        optionLabel="name"
+        placeholder="Alcaldia"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="area" class="font-semibold w-6rem"> Zona / Cuadrante </label>
+      <p-dropdown
+        id="area"
+        [options]="zones"
+        class="flex-auto"
+        [(ngModel)]="selectedArea"
+        optionLabel="name"
+        placeholder="Zona/Cuadrante"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="area" class="font-semibold w-6rem"> Tipo </label>
+      <p-dropdown
+        id="area"
+        [options]="types"
+        class="flex-auto"
+        [(ngModel)]="selectedArea"
+        optionLabel="name"
+        placeholder="Tipo"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="area" class="font-semibold w-6rem"> Programa </label>
+      <p-dropdown
+        id="area"
+        [options]="activities"
+        class="flex-auto"
+        [(ngModel)]="selectedArea"
+        optionLabel="name"
+        placeholder="Programa"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="name" class="font-semibold w-6rem">Coordenada X</label>
+      <input
+        pInputText
+        id="name"
+        class="flex-auto"
+        [(ngModel)]="editingUser.name"
+        autocomplete="off"
+        placeholder="Coordenada X"
+      />
+    </div>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="name" class="font-semibold w-6rem">Coordenada Y</label>
+      <input
+        pInputText
+        id="name"
+        class="flex-auto"
+        [(ngModel)]="editingUser.name"
+        autocomplete="off"
+        placeholder="Coordenada Y"
+      />
+    </div>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="name" class="font-semibold w-6rem">Luminarios Viales</label>
+      <input
+        pInputText
+        id="name"
+        class="flex-auto"
+        [(ngModel)]="editingUser.name"
+        autocomplete="off"
+        placeholder="Luminarios Viales"
+      />
+    </div>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="name" class="font-semibold w-6rem">Luminarios Peatonales</label>
+      <input
+        pInputText
+        id="name"
+        class="flex-auto"
+        [(ngModel)]="editingUser.name"
+        autocomplete="off"
+        placeholder="Luminarios Peatonales"
+      />
+    </div>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="name" class="font-semibold w-6rem">Luminarios en Servicio</label>
+      <input
+        pInputText
+        id="name"
+        class="flex-auto"
+        [(ngModel)]="editingUser.name"
+        autocomplete="off"
+        placeholder="Luminarios en Servicio"
+      />
+    </div>
+
+    <div class="flex justify-content-between gap-2 mt-4">
+      <p-button
+        label="Cancelar"
+        styleClass="buttonDialog"
+        (onClick)="visible = false"
+      ></p-button>
+      <p-button
+        [label]="dialogMode === 'create' ? 'Crear' : 'Guardar'"
+        (onClick)="saveUser()"
+        styleClass="buttonDialog"
+        [disabled]="
+          !editingUser.name ||
+          !editingUser.mail ||
+          !selectedProfile ||
+          !selectedDepots ||
+          !selectedArea ||
+          editingUser.active === undefined
+        "
+      ></p-button>
+    </div>
+  </p-dialog>
+</div>
+<app-log-view
+  *ngIf="showLogs"
+  [table]="table"
+  [entity]="entity"
+  (onClose)="handleClose($event)"
+></app-log-view>

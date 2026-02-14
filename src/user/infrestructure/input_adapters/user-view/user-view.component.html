@@ -1,0 +1,221 @@
+<div class="main">
+  <div class="title"><h1>Usuarios</h1></div>
+  <!-- Search -->
+  <div class="card flex justify-content-between m-5 search">
+    <div class="flex justify-items-start">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          class="filter-global"
+          (input)="applyFilterGlobal($event, 'contains')"
+          placeholder="Buscar...."
+        />
+      </span>
+    </div>
+
+    <!-- Nuevo usuario -->
+    <p-button
+      class="newUser"
+      (onClick)="createUser()"
+      label="Nuevo Usuario"
+      styleClass="p-button-primary"
+    ></p-button>
+  </div>
+
+  <!-- Tabla de usuarios -->
+  <div class="mx-3">
+    <p-table
+      #dt
+      [globalFilterFields]="[
+        'name',
+        'mail',
+        'user_profile.profile',
+        'depot.name',
+        'area.name',
+        'active'
+      ]"
+      [value]="filteredUsers"
+      [loading]="loading"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [tableStyle]="{ 'min-width': '60rem', 'height': '32rem' }"
+      scrollable="true"
+      [scrollHeight]="'30rem'"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col">Nombre</th>
+          <th scope="col">Email</th>
+          <th scope="col">Rol</th>
+          <th scope="col">Área</th>
+          <th scope="col">Estado</th>
+          <th scope="col" class="text-center">Opciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-user>
+        <tr>
+          <td>{{ user.name }}</td>
+          <td>{{ user.mail }}</td>
+          <td>{{ user.profile?.profile }}</td>
+          <td>{{ user.area.name }}</td>
+          <td>{{ user.active ? "Activo" : "Inactivo" }}</td>
+          <td class="text-center">
+            <p-button
+              (onClick)="showDialog(user)"
+              icon="pi pi-pencil"
+              styleClass="p-button-text"
+              [style]="{ 'margin-right': '.5rem' }"
+            ></p-button>
+            <p-button
+              (onClick)="viewLogs(user.idUser)"
+              icon="pi pi-book"
+              styleClass="p-button-text p-button-danger"
+            ></p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center">No se encontraron almacenes</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!--Diálogo para crear/editar depósito -->
+  <p-dialog
+    [header]="dialogTitle"
+    [modal]="true"
+    [(visible)]="visible"
+    [style]="{ width: '40rem' }"
+  >
+    <span class="p-text-secondary block my-5">
+      {{
+        dialogMode === "create"
+          ? "Ingresa la información del nuevo usuario:"
+          : "Actualizar información del usuario:"
+      }}
+    </span>
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="name" class="font-semibold w-6rem">Nombre</label>
+      <input
+        pInputText
+        id="name"
+        class="flex-auto"
+        [(ngModel)]="editingUser.name"
+        autocomplete="off"
+        placeholder="Nombre del usuario"
+      />
+    </div>
+
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="mail" class="font-semibold w-6rem">Email</label>
+      <input
+        pInputText
+        id="mail"
+        class="flex-auto"
+        [(ngModel)]="editingUser.mail"
+        autocomplete="off"
+        placeholder="Email del usuario"
+      />
+    </div>
+
+    <div *ngIf="dialogMode === 'create'" class="flex align-items-center gap-3 mb-3">
+      <label for="password" class="font-semibold w-6rem">Contraseña</label>
+      <input
+        pInputText
+        type="password"
+        id="password"
+        class="flex-auto"
+        [(ngModel)]="editingUser.password"
+        autocomplete="off"
+        placeholder="Contraseña del usuario"
+      />
+    </div>
+
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="profile" class="font-semibold w-6rem">Rol</label>
+      <p-dropdown
+        id="profile"
+        class="flex-auto"
+        [options]="profiles"
+        [(ngModel)]="selectedProfile"
+        optionLabel="profile"
+        placeholder="Selecciona un rol"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+
+    <div class="flex align-items-center gap-3 mb-3">
+    <label for="depot" class="font-semibold w-6rem"> Almacén </label>
+    <p-multiSelect
+      [options]="depots"
+      [(ngModel)]="selectedDepots"
+      class="flex-auto"
+      optionLabel="name"
+      placeholder="Selecciona los almacenes asignados"
+      [style]="{ width: '100%' }"
+      appendTo="body"
+    ></p-multiSelect>
+    </div>
+
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="area" class="font-semibold w-6rem"> Área </label>
+      <p-dropdown
+        id="area"
+        [options]="areas"
+        class="flex-auto"
+        [(ngModel)]="selectedArea"
+        optionLabel="name"
+        placeholder="Selecciona un área"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
+    </div>
+
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="active" class="font-semibold w-6rem">Estado</label>
+      <p-dropdown
+        [options]="[
+          { label: 'Activo', value: true },
+          { label: 'Inactivo', value: false }
+        ]"
+        class="flex-auto"
+        [(ngModel)]="editingUser.active"
+        optionLabel="label"
+        optionValue="value"
+        [style]="{ width: '100%' }"
+      >
+      </p-dropdown>
+    </div>
+
+    <div class="flex justify-content-between gap-2 mt-4">
+      <p-button
+        label="Cancelar"
+        styleClass="buttonDialog"
+        (onClick)="visible = false"
+      ></p-button>
+      <p-button
+        [label]="dialogMode === 'create' ? 'Crear' : 'Guardar'"
+        (onClick)="saveUser()"
+        styleClass="buttonDialog"
+        [disabled]="
+          !editingUser.name ||
+          !editingUser.mail ||
+          !selectedProfile ||
+          !selectedDepots ||
+          !selectedArea ||
+          editingUser.active === undefined
+        "
+      ></p-button>
+    </div>
+  </p-dialog>
+</div>
+<app-log-view
+  *ngIf="showLogs"
+  [table]="table"
+  [entity]="entity"
+  (onClose)="handleClose($event)"
+></app-log-view>

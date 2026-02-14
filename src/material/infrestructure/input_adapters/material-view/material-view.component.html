@@ -1,0 +1,194 @@
+<div class="main">
+  <div class="title"><h1>Materiales</h1></div>
+  <!-- Search -->
+  <div class="card flex justify-content-between m-5 search">
+    <div class="flex justify-items-start">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          class="filter-global"
+          (input)="applyFilterGlobal($event, 'contains')"
+          placeholder="Buscar...."
+        />
+      </span>
+    </div>
+
+    <!-- Nuevo material -->
+    <p-button
+      class="newMaterial"
+      (onClick)="createMaterial()"
+      label="Nuevo Maintenance"
+      styleClass="p-button-primary"
+    ></p-button>
+  </div>
+
+  <!-- Tabla de materiales -->
+  <div class="card m-3">
+    <p-table
+      #dt
+      [globalFilterFields]="['serialNumber', 'description']"
+      [value]="filteredMaterials"
+      [paginator]="true"
+      [rows]="10"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [loading]="loading"
+      [tableStyle]="{ 'min-width': '60rem', 'height': '32rem' }"
+      scrollable="true"
+      [scrollHeight]="'30rem'"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col" style="width: 10rem">No. de Serie</th>
+          <th scope="col" style="width: 20rem">Descripción</th>
+          <th scope="col" style="width: 12rem">Unidad</th>
+          <th scope="col" class="text-center" style="width: 6rem">Opciones</th>
+        </tr>
+      </ng-template>
+
+      <ng-template pTemplate="body" let-m>
+        <tr>
+          <td>{{ m.serialNumber }}</td>
+          <td>{{ m.description }}</td>
+          <td>{{ m.unit?.name }}</td>
+          <td class="text-center">
+            <p-button
+              (onClick)="showDialog(m)"
+              icon="pi pi-pencil"
+              severity="primary"
+            />
+            <p-button
+              (onClick)="viewLogs(m.idMaterial)"
+              icon="pi pi-book"
+              styleClass="p-button-text p-button-danger"
+            />
+            <p-button
+              (onClick)="getStock(m)"
+              icon="pi pi-warehouse"
+              severity="primary"
+            />
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!--Edicion de materiales -->
+
+  <p-dialog
+    [header]="dialogTitle"
+    [modal]="true"
+    [(visible)]="visible"
+    [style]="{ width: '40rem' }"
+  >
+    <span class="p-text-secondary block my-5">
+      {{
+        dialogMode === "create"
+          ? "Ingrese la Información del Nuevo Maintenance:"
+          : "Actualizar Información del Maintenance:"
+      }}
+    </span>
+
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="description" class="font-semibold w-6rem">
+        Descripción
+      </label>
+      <input
+        pInputText
+        id="description"
+        class="flex-auto"
+        [(ngModel)]="material.description"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="unit" class="font-semibold w-6rem"> Unidad </label>
+      <p-dropdown
+        id="unit"
+        [options]="units"
+        class="flex-auto"
+        [(ngModel)]="material.unit"
+        optionLabel="name"
+        placeholder="Selecciona una unidad"
+        [style]="{ width: '100%' }"
+        appendTo="body"
+      ></p-dropdown>
+    </div>
+
+    <div
+      *ngIf="dialogMode === 'create'"
+      class="flex align-items-center gap-3 mb-3"
+    >
+      <label for="depot" class="font-semibold w-6rem"> Almacén </label>
+      <p-multiSelect
+        [options]="depots"
+        [(ngModel)]="material.depotList"
+        class="flex-auto"
+        optionLabel="name"
+        placeholder="Selecciona un Almacén"
+        [style]="{ width: '100%' }"
+        appendTo="body"
+      ></p-multiSelect>
+    </div>
+
+    <div *ngIf="errorMsg" class="p-error mb-2">{{ errorMsg }}</div>
+    <div class="flex justify-content-between gap-2 mt-4">
+      <p-button
+        label="Cancelar"
+        styleClass="buttonDialog"
+        (onClick)="visible = false"
+      ></p-button>
+      <p-button
+        [label]="dialogMode === 'create' ? 'Crear' : 'Guardar'"
+        (onClick)="saveMaterial()"
+        styleClass="buttonDialog"
+        [disabled]="
+          !material.unit || !material.description || (dialogMode === 'create'? !material.depotList?.length :false)
+        "
+      ></p-button>
+    </div>
+  </p-dialog>
+
+  <p-dialog
+    [header]="stockTitle"
+    [modal]="true"
+    [(visible)]="showStock"
+    [style]="{ width: '60rem' }"
+  >
+    <div class="card m-3">
+      <p-table
+        [value]="materialDepotStock"
+        [rows]="20"
+        [paginator]="true"
+        [rowsPerPageOptions]="[20, 30, 40]"
+        [loading]="loading"
+      >
+        <ng-template pTemplate="header">
+          <tr>
+            <th scope="col" style="width: 10rem">Maintenance</th>
+            <th scope="col" style="width: 20rem">Almacén</th>
+            <th scope="col" style="width: 12rem">Estatus</th>
+            <th scope="col" style="width: 12rem">Stock</th>
+          </tr>
+        </ng-template>
+
+        <ng-template pTemplate="body" let-depotMaterial>
+          <tr>
+            <td>{{ depotMaterial.material.description }}</td>
+            <td>{{ depotMaterial.depot.name }}</td>
+            <td>{{ depotMaterial.status.status }}</td>
+            <td>{{ depotMaterial.stock }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </p-dialog>
+</div>
+<app-log-view
+  *ngIf="showLogs"
+  [table]="table"
+  [entity]="entity"
+  (onClose)="handleClose($event)"
+></app-log-view>

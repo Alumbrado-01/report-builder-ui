@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import "primeng/resources/themes/lara-light-indigo/theme.css";
+@import "primeng/resources/primeng.min.css";
+@import "primeicons/primeicons.css";
+@import "primeflex/primeflex.css";
+
+* {
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+}
+
+.p-dialog .p-dialog-content {
+  background-color: #FAFAFA;
+}
+
+div.p-checkbox-box{
+  border: 1px solid #3b0114;
+}

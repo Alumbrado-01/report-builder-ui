@@ -1,0 +1,81 @@
+.newUser {
+  color: white;
+  background-color: #4d0218;
+  padding: 5px;
+  border-radius: 10px;
+}
+
+.main {
+  margin-left: 20px;
+  margin-right: 20px;
+  background-color: #f5f5f5;
+}
+
+.title {
+  font-size: 20px;
+  background-color: #9a7d0a;
+
+  h1 {
+    margin: 10px;
+    color: white;
+  }
+}
+
+.filter-global {
+  border-radius: 10px;
+  border: solid 1px #9a7d0a;
+  height: 39px;
+  padding-left: 2rem;
+  width: 260px;
+}
+
+:host ::ng-deep .p-button.buttonDialog {
+  font-size: 1rem;
+  padding: 5px 10px 5px 10px;
+  background-color: #4D0218;
+  color: white;
+  cursor: pointer;
+  border-radius: 5px;
+  margin: 15px;
+  margin-top: 37px;
+
+  &:hover {
+    background-color: #3b0114;
+  }
+}
+
+:host ::ng-deep .p-dialog {
+  border: solid 3px #9A7D0A;
+  border-radius: 10px;
+}
+
+th, td {
+  text-align: center;
+  font-size: 15px;
+  height: 30px;
+}
+
+@media (max-width: 767px) {
+
+  .newUser {
+    width: 50%;
+    margin-top: 20px;
+    display: block;
+  }
+
+  .search {
+    display: flex;
+    flex-direction: column !important;
+    align-items: stretch;
+  }
+
+  .main {
+    height: 84vh;
+    width: 91vw;
+    display: block;
+  }
+}
+.main-form {
+  height: 100%;
+  width: 100%;
+}

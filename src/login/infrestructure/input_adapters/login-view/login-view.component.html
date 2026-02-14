@@ -1,0 +1,45 @@
+<header>
+  <img class="logofooter" src="assets/logo.png" alt="Logo">
+</header>
+<div >
+  <div>
+    <h1>Sistema de Gestión de Mantenimiento Diario</h1>
+  </div>
+  <div>
+   <h3>Inicio de Sesión</h3>
+  </div>
+<p-dialog [(visible)]="visible">
+    <ng-template pTemplate="headless">
+    <div class="inline-flex flex-column px-8 py-5 gap-4" style="border-radius: 12px;">
+            <div class="inline-flex flex-column gap-2">
+                <label for="user" class="text-primary-30">Usuario:</label>
+                <input
+                  [(ngModel)]="user"
+                  maxlength="30"
+                  minlength="10"
+                  pInputText id="user"
+                  class="bg-gray-300-alpha-10 border-1 p-2 text-primary-30"/>
+            </div>
+            <div class="inline-flex flex-column gap-2 algin-items-center justify-content-center">
+                <label for="password" class="text-primary-30">Contraseña:</label>
+                <input
+                  [(ngModel)]="key"
+                  maxlength="20"
+                  minlength="4"
+                  pInputText
+                  id="password"
+                  class="bg-gray-300-alpha-10 border-1 p-2 text-primary-30"
+                  type="password"/>
+            </div>
+            <div class="flex align-items-center gap-2">
+                <p-button (onClick)="login()" label="Ingresar" styleClass="p-3 w-full" class="w-full"  />
+            </div>
+        </div>
+    </ng-template>
+</p-dialog>
+</div>
+<footer>
+  <div>
+      <h4>Diseñado y Operado por el Área de Tecnologías de la Información y Comunicaciones de Alumbrado Público.</h4>
+    </div>
+</footer>

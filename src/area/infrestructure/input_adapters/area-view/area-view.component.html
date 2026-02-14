@@ -1,0 +1,142 @@
+<div class="main">
+  <div class="title"><h1>Áreas</h1></div>
+  <!-- Buscador -->
+  <div class="card flex justify-content-between m-5 search">
+    <div class="flex justify-items-start">
+      <span class="p-input-icon-left">
+        <i class="pi pi-search"></i>
+        <input
+          pInputText
+          type="text"
+          class="filter-global"
+          (input)="applyFilterGlobal($event, 'contains')"
+          placeholder="Buscar...."
+        />
+      </span>
+    </div>
+
+    <!-- Nuevo área -->
+    <p-button
+      class="newArea"
+      (onClick)="createArea()"
+      label="Nueva Área"
+      styleClass="p-button-primary"
+    ></p-button>
+  </div>
+
+  <!-- Tabla de áreas -->
+
+  <div class="mx-3">
+    <p-table
+      #dt
+      [globalFilterFields]="['name', 'active']"
+      [value]="filteredAreas"
+      [loading]="loading"
+      [paginator]="true"
+      [rowsPerPageOptions]="[10, 20, 50]"
+      [rows]="10"
+      [tableStyle]="{ 'min-width': '60rem', 'height': '32rem' }"
+      scrollable="true"
+      [scrollHeight]="'30rem'"
+    >
+      <ng-template pTemplate="header">
+        <tr>
+          <th scope="col" style="width: 40rem">Nombre</th>
+          <th scope="col" style="width: 20rem">Estado</th>
+          <th scope="col" class="text-center" style="width: 20rem">Opciones</th>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="body" let-area>
+        <tr>
+          <td>{{ area.name }}</td>
+          <td>{{ area.active ? "Activo" : "Inactivo" }}</td>
+          <td class="text-center">
+            <p-button
+              (onClick)="showDialog(area)"
+              icon="pi pi-pencil"
+              styleClass="p-button-text"
+              [style]="{ 'margin-right': '.5rem' }"
+            ></p-button>
+            <p-button
+              (onClick)="viewLogs(area.idArea)"
+              icon="pi pi-book"
+              styleClass="p-button-text p-button-danger"
+            ></p-button>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template pTemplate="emptymessage">
+        <tr>
+          <td colspan="4" class="text-center">No se encontraron almacenes</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!--Diálogo para crear/editar depósito -->
+  <p-dialog
+    [header]="dialogTitle"
+    [modal]="true"
+    [(visible)]="visible"
+    [style]="{ width: '40rem' }"
+  >
+    <span class="p-text-secondary block my-5">
+      {{
+        dialogMode === "create"
+          ? "Ingresa la información del nuevo almacén:"
+          : "Actualizar información del almacén:"
+      }}
+    </span>
+
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="name" class="font-semibold w-6rem">Nombre</label>
+      <input
+        pInputText
+        id="name"
+        class="flex-auto"
+        [(ngModel)]="editingArea.name"
+        autocomplete="off"
+        placeholder="Nombre del área"
+      />
+    </div>
+
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="active" class="font-semibold w-6rem">Estado</label>
+      <p-dropdown
+        class="flex-auto"
+        [options]="[
+          { label: 'Activo', value: true },
+          { label: 'Inactivo', value: false }
+        ]"
+        [(ngModel)]="editingArea.active"
+        optionLabel="label"
+        optionValue="value"
+        [style]="{ width: '100%' }"
+      >
+      </p-dropdown>
+    </div>
+
+    <div class="flex justify-content-between gap-2 mt-4">
+      <p-button
+        label="Cancelar"
+        styleClass="buttonDialog"
+        (onClick)="visible = false"
+      ></p-button>
+      <p-button
+        [label]="dialogMode === 'create' ? 'Crear' : 'Guardar'"
+        (onClick)="saveArea()"
+        styleClass="buttonDialog"
+        [disabled]="
+          !editingArea.name ||
+          editingArea.active === undefined
+        "
+      ></p-button>
+    </div>
+  </p-dialog>
+</div>
+<app-log-view
+  *ngIf="showLogs"
+  [table]="table"
+  [entity]="entity"
+  (onClose)="handleClose($event)"
+></app-log-view>
