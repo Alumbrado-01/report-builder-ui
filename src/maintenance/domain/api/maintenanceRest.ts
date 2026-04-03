@@ -7,5 +7,6 @@ export default {
     SAVE: `${environment.baseUrl}/dap/reportBuilder/v1/maintenanceController/save`,
     UPDATE: `${environment.baseUrl}/dap/reportBuilder/v1/maintenanceController/update`,
     FIND_BY_ID: `${environment.baseUrl}/dap/reportBuilder/v1/maintenanceController/findById`,
+    FIND_BY_USER: `${environment.baseUrl}/dap/reportBuilder/v1/maintenanceController/findByUser`,
   },
 };

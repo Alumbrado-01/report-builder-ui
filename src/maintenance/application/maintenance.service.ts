@@ -4,6 +4,7 @@ import { catchError, map, Observable, of } from 'rxjs';
 import { IMaintenanceService } from '../infrestructure/input_ports/IMaintenanceService';
 import { MaintenanceRequest } from '../domain/api/maintenanceRequest';
 import {MaintenanceWebServiceImplements} from "../infrestructure/output_adapters/maintenanceWebServiceImplement";
+import {User} from "../../user/domain/object/user";
 
 @Injectable({
   providedIn: 'root',
@@ -53,6 +54,16 @@ export class MaintenanceService implements IMaintenanceService {
       catchError((e) => {
         console.error(e);
         return of({} as Maintenance);
+      })
+    );
+  }
+
+  findByUser(user: User): Observable<Maintenance[]> {
+    return this.service.findByUser(user).pipe(
+      map((response) => (this.maintenanceList = response)),
+      catchError((e) => {
+        console.error(e);
+        return of([] as Maintenance[]);
       })
     );
   }

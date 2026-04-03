@@ -6,6 +6,7 @@ import { Maintenance } from '../../domain/object/maintenance';
 import { Observable} from 'rxjs';
 import { MaintenanceRequest } from '../../domain/api/maintenanceRequest';
 import { TokenService } from '../../../app/Services/autenticationService/tokenService';
+import {User} from "../../../user/domain/object/user";
 
 @Injectable({
   providedIn: 'root',
@@ -45,6 +46,12 @@ export class MaintenanceWebServiceImplements implements IMaintenanceWebService {
 
   findById(id: number): Observable<Maintenance> {
     return this.http.get<Maintenance>(`${maintenanceRest.maintenanceService.FIND_BY_ID}/${id}`, {
+      headers: this.headers(),
+    });
+  }
+
+  findByUser(user: User): Observable<Maintenance[]> {
+    return this.http.post<Maintenance[]>(maintenanceRest.maintenanceService.FIND_BY_USER, user, {
       headers: this.headers(),
     });
   }

@@ -7,4 +7,5 @@ export abstract class IZoneService {
   abstract update(request: ZoneRequest): Observable<Zone>;
   abstract findAll(): Observable<Zone[]>;
   abstract findById(id: number): Observable<Zone>;
+
 }

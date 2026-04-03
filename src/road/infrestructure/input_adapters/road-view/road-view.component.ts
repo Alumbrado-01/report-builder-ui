@@ -7,12 +7,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { Area } from '../../../domain/object/area';
-import { IAreaService } from '../../input_ports/IAreaService';
-import { AreaRequest } from '../../../domain/api/areaRequest';
 import Swal from "sweetalert2";
 import {User} from "../../../../user/domain/object/user";
 import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/log-view/log-view.component";
+import {IRoadService} from "../../input_ports/IRoadService";
+import {Road} from "../../../domain/object/road";
+import {RoadRequest} from "../../../domain/api/roadRequest";
 
 @Component({
   selector: 'app-road-view',
@@ -28,32 +28,25 @@ import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/lo
     AutoCompleteModule,
     LogViewComponent,
   ],
-  templateUrl: './area-view.component.html',
-  styleUrl: './area-view.component.scss',
+  templateUrl: './road-view.component.html',
+  styleUrl: './road-view.component.scss',
 })
-export class AreaViewComponent implements OnInit {
-  private readonly svc = inject(IAreaService);
+export class RoadViewComponent implements OnInit {
 
-  areas: Area[] = [];
-  filteredAreas: Area[] = [];
+  private readonly roadService = inject(IRoadService);
+
+  road: Road = {};
+  roadList: Road[] = [];
   loading = false;
   @ViewChild('dt') public dt: any;
 
-  // Propiedades para el diálogo
   visible: boolean = false;
   dialogMode: 'create' | 'edit' = 'create';
   dialogTitle: string = '';
   public showLogs: boolean = false;
   public entity: number;
-  public table: string = 'area';
+  public table: string = 'road';
   public userData: User;
-
-  // Propiedad para edición/creación
-  editingArea: Area = {
-    idArea: 0,
-    name: '',
-    active: true,
-  };
 
   ngOnInit(): void {
     this.load();
@@ -70,14 +63,13 @@ export class AreaViewComponent implements OnInit {
 
   private load(): void {
     this.loading = true;
-    this.svc.findAll().subscribe({
+    this.roadService.findAll().subscribe({
       next: (data) => {
-        this.areas = data;
-        this.filteredAreas = data;
+        this.roadList = data;
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error cargando áreas:', err);
+        console.error('Error cargando vialidades:', err);
         this.loading = false;
       },
     });
@@ -88,37 +80,32 @@ export class AreaViewComponent implements OnInit {
     this.dt!.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
-  // Funciones de diálogo y edición/creación
-  createArea() {
+  createRoad() {
     this.dialogMode = 'create';
     this.dialogTitle = 'Crear Nuevo Área';
-    this.editingArea = {
-      idArea: 0,
-      name: '',
-      active: true,
-    };
     this.visible = true;
   }
 
-  showDialog(area: Area) {
+  showDialog(road: Road) {
     this.dialogMode = 'edit';
-    this.dialogTitle = 'Editar Área';
-    this.editingArea = { ...area };
+    this.dialogTitle = 'Editar Vialidad';
+    this.road = { ...road };
     this.visible = true;
   }
 
-    public verifyAreaExists(): boolean {
-    return this.areas.some(area =>
-      area.name?.toLowerCase().trim() === this.editingArea.name?.toLowerCase().trim() &&
-      area.idArea !== this.editingArea.idArea
+    public verifyRoadExists(): boolean {
+    return this.roadList.some(road =>
+      road.name?.toLowerCase().trim() === this.road.name?.toLowerCase().trim() &&
+      road.idRoad !== this.road.idRoad
     );
   }
-  saveArea() {
-    const areaExists = this.verifyAreaExists();
-    if (areaExists){
+
+  saveRoad() {
+    const roadExists = this.verifyRoadExists();
+    if (roadExists){
       this.visible = false;
       Swal.fire({
-        title: `El área "${this.editingArea.name}" ya existe`,
+        title: `La vialidad "${this.road.name}" ya existe`,
         icon: "warning",
         draggable: true
       });
@@ -137,27 +124,27 @@ export class AreaViewComponent implements OnInit {
          draggable: true
        });
      }
-    if (this.editingArea) {
-      const requestData: AreaRequest = {
+    if (this.road) {
+      const requestData: RoadRequest = {
         modelRequest: {
           ...(this.dialogMode === 'edit'
-            ? { idArea: this.editingArea.idArea }
+            ? { idArea: this.road.idRoad }
             : {}),
-          name: this.editingArea.name,
-          active: this.editingArea.active,
+          name: this.road.name,
+          active: this.road.active,
         },
         user: this.userData,
       };
 
       const action =
         this.dialogMode === 'create'
-          ? this.svc.create(requestData)
-          : this.svc.update(requestData);
+          ? this.roadService.create(requestData)
+          : this.roadService.update(requestData);
 
       action.subscribe({
         next: () => {
           this.visible = false;
-          this.load(); // Recargar la lista
+          this.load();
         },
         error: (err) => {
           console.error(

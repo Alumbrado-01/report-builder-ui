@@ -27,7 +27,7 @@ export class TypeWebServiceImplements implements ITypeWebService {
 
   private readonly restToDomain = (type: Type): Type => {
     return {
-      idType: type.idType,
+      idRVP: type.idRVP,
       name: type.name,
       active: type.active,
     };

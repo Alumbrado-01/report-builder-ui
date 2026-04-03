@@ -4,6 +4,7 @@ import {Activity} from "../../../activity/domain/object/activity";
 import {Mayoralty} from "../../../mayoralty/domain/object/mayoralty";
 import {Zone} from "../../../zone/domain/object/zone";
 import {Program} from "../../../program/domain/object/program";
+import {Type} from "../../../type/domain/object/type";
 
 export interface Maintenance {
   idMaintenance?: number;
@@ -19,5 +20,5 @@ export interface Maintenance {
   streetlights?: number;
   pedestrianLighting?: number;
   luminariesInService?: number;
-  rvsOrRs?: string;
+  type?: Type;
 }

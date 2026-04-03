@@ -7,5 +7,6 @@ export default {
     SAVE: `${environment.baseUrl}/dap/reportBuilder/v1/roadController/save`,
     UPDATE: `${environment.baseUrl}/dap/reportBuilder/v1/roadController/update`,
     FIND_BY_ID: `${environment.baseUrl}/dap/reportBuilder/v1/roadController/findById`,
+    FIND_BY_ZONE_AND_TYPE: `${environment.baseUrl}/dap/reportBuilder/v1/roadController/findActiveByZoneAndType`,
   },
 };

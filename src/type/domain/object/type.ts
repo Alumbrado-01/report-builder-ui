@@ -1,5 +1,5 @@
 export interface Type {
-  idType: number;
+  idRVP: number;
   name: string;
   active: boolean;
 }

@@ -13,6 +13,7 @@ import {authGuard} from "./Services/autenticationService/auth.guard";
 import {
   MaintenanceViewComponent
 } from "../maintenance/infrestructure/input_adapters/maintenance-view/maintenance-view.component";
+import {RoadViewComponent} from "../road/infrestructure/input_adapters/road-view/road-view.component";
 
 export const routes: Routes = [
   { path: '', component: LoginViewComponent },
@@ -28,6 +29,11 @@ export const routes: Routes = [
   },
   { path: 'mantenimiento',
     component: MaintenanceViewComponent,
+    canActivate: [authGuard],
+    data: { roles: ['Administrador', 'Almacenista'] }
+  },
+  { path: 'vialidad',
+    component: RoadViewComponent,
     canActivate: [authGuard],
     data: { roles: ['Administrador', 'Almacenista'] }
   },

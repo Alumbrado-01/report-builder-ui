@@ -6,6 +6,7 @@ import { Zone } from '../../domain/object/zone';
 import { Observable } from 'rxjs';
 import { ZoneRequest } from '../../domain/api/zoneRequest';
 import { TokenService } from '../../../app/Services/autenticationService/tokenService';
+import {RoadByZoneRequest} from "../../../road/domain/api/roadByZoneRequest";
 
 @Injectable({
   providedIn: 'root',
@@ -52,4 +53,5 @@ export class ZoneWebServiceImplements implements IZoneWebService {
         headers: this.headers(),
       })
   }
+
 }

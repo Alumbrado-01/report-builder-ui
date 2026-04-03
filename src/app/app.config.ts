@@ -22,6 +22,8 @@ import {ILogService} from "../log/infrestructure/input_ports/ILogService";
 import {LogService} from "../log/application/log.service";
 import {ILoginService} from "../login/infrestructure/input_ports/ILoginService";
 import {LoginService} from "../login/application/login.service";
+import {IRoadService} from "../road/infrestructure/input_ports/IRoadService";
+import {RoadService} from "../road/application/road.service";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -38,5 +40,6 @@ export const appConfig: ApplicationConfig = {
     { provide: IApplicantService , useClass: ApplicantService },
     { provide: ILogService, useClass: LogService },
     { provide: ILoginService, useClass: LoginService },
+    { provide: IRoadService, useClass: RoadService},
   ],
 };

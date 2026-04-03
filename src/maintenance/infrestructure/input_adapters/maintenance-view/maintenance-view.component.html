@@ -1,5 +1,5 @@
 <div class="main">
-  <div class="title"><h1>Registro Mantenimiento Diario</h1></div>
+  <div class="title flex justify-content-center"><h1>Registro Mantenimiento Diario</h1></div>
 
   <div class="card flex justify-content-between m-5 search">
     <div class="flex justify-items-start">
@@ -17,7 +17,7 @@
 
     <p-button
       class="newUser"
-      (onClick)="createUser()"
+      (onClick)="createMaintenance()"
       label="Registro de Atención"
       styleClass="p-button-primary"
     ></p-button>
@@ -27,14 +27,19 @@
     <p-table
       #dt
       [globalFilterFields]="[
-        'name',
-        'mail',
-        'user_profile.profile',
-        'depot.name',
-        'area.name',
-        'active'
+        'road.name',
+        'activity.name',
+        'mayoralty.name',
+        'program.name',
+        'coordinateX',
+        'coordinateY',
+        'streetlights',
+        'pedestrianLighting',
+        'luminariesInService',
+        'zone.name',
+        'type.name'
       ]"
-      [value]="filteredUsers"
+      [value]="maintenanceList"
       [loading]="loading"
       [paginator]="true"
       [rows]="10"
@@ -48,7 +53,6 @@
           <th scope="col">Vialidad</th>
           <th scope="col">Actividad</th>
           <th scope="col">Alcaldia</th>
-          <th scope="col">Zona</th>
           <th scope="col">Programa</th>
           <th scope="col">Coordenada X</th>
           <th scope="col">Coordenada Y</th>
@@ -59,26 +63,19 @@
           <th scope="col">Tipo</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-user>
+      <ng-template pTemplate="body" let-maintenance>
         <tr>
-          <td>{{ user.name }}</td>
-          <td>{{ user.mail }}</td>
-          <td>{{ user.profile?.profile }}</td>
-          <td>{{ user.area.name }}</td>
-          <td>{{ user.active ? "Activo" : "Inactivo" }}</td>
-          <td class="text-center">
-            <p-button
-              (onClick)="showDialog(user)"
-              icon="pi pi-pencil"
-              styleClass="p-button-text"
-              [style]="{ 'margin-right': '.5rem' }"
-            ></p-button>
-            <p-button
-              (onClick)="viewLogs(user.idUser)"
-              icon="pi pi-book"
-              styleClass="p-button-text p-button-danger"
-            ></p-button>
-          </td>
+          <td>{{ maintenance.road.name }}</td>
+          <td>{{ maintenance.activity.name }}</td>
+          <td>{{ maintenance.mayoralty.name }}</td>
+          <td>{{ maintenance.program.name }}</td>
+          <td>{{ maintenance.coordinateX }}</td>
+          <td>{{ maintenance.coordinateY }}</td>
+          <td>{{ maintenance.streetlights }}</td>
+          <td>{{ maintenance.pedestrianLighting }}</td>
+          <td>{{ maintenance.luminariesInService }}</td>
+          <td>{{ maintenance.zone.name }}</td>
+          <td>{{ maintenance.type.name }}</td>
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
@@ -96,24 +93,60 @@
     [style]="{ width: '40rem' }"
   >
     <span class="p-text-secondary block my-5">
-      {{
-        dialogMode === "create"
-          ? "Ingresa la información :"
-          : "Actualizar información del usuario:"
-      }}
+      Actualizar información del usuario:
     </span>
-
-    <div class="flex align-items-center gap-3 mb-3">
+    <div class="flex justify-content-center align-items-center gap-2 mb-4">
+      <p-radioButton
+        (ngModelChange)="getRoadsByZoneAndType($event)"
+        name="type"
+        [value]="true"
+        [(ngModel)]="radioValue"
+        inputId="rvp" />
+      <label for="rvp" class="ml-2">
+        Red Vial Primaria
+      </label>
+      <p-radioButton
+        (ngModelChange)="getRoadsByZoneAndType($event)"
+        name="type"
+        [value]="false"
+        [(ngModel)]="radioValue"
+        inputId="rvs" />
+      <label for="rvs" class="ml-2">
+        Red Vial Secundaria
+      </label>
+    </div>
+    <div *ngIf="!load" class="flex align-items-center gap-3 mb-3">
       <label for="road" class="font-semibold w-6rem"> Vialidad </label>
       <p-dropdown
+        (onChange)="showMayoraltyAndZone()"
         id="road"
         [options]="roads"
         class="flex-auto"
-        [(ngModel)]="selectedArea"
+        [(ngModel)]="maintenance.road"
         optionLabel="name"
         placeholder="Vialidad"
         [style]="{ width: '100%' }"
       ></p-dropdown>
+    </div>
+    <div *ngIf="!load" class="flex flex-column gap-2">
+      <label for="mayoralty">Alcaldia</label>
+      <input
+        placeholder="Alcaldia"
+        pInputText
+        id="mayoralty"
+        disabled
+        value="{{maintenance?.mayoralty?.name}}"
+      />
+    </div>
+    <div *ngIf="!load" class="flex flex-column gap-2 mb-3">
+      <label for="mayoralty">Zona/Cuadrante</label>
+      <input
+        placeholder="Zona/Cuadrante"
+        pInputText
+        id="zone"
+        disabled
+        value="{{maintenance?.zone?.name}}"
+      />
     </div>
     <div class="flex align-items-center gap-3 mb-3">
       <label for="activity" class="font-semibold w-6rem"> Actividad Realizada </label>
@@ -121,33 +154,9 @@
         id="activity"
         [options]="activities"
         class="flex-auto"
-        [(ngModel)]="selectedArea"
+        [(ngModel)]="maintenance.activity"
         optionLabel="name"
         placeholder="Actividad Realizada"
-        [style]="{ width: '100%' }"
-      ></p-dropdown>
-    </div>
-    <div class="flex align-items-center gap-3 mb-3">
-      <label for="area" class="font-semibold w-6rem"> Alcaldia </label>
-      <p-dropdown
-        id="area"
-        [options]="mayoraltyList"
-        class="flex-auto"
-        [(ngModel)]="selectedArea"
-        optionLabel="name"
-        placeholder="Alcaldia"
-        [style]="{ width: '100%' }"
-      ></p-dropdown>
-    </div>
-    <div class="flex align-items-center gap-3 mb-3">
-      <label for="area" class="font-semibold w-6rem"> Zona / Cuadrante </label>
-      <p-dropdown
-        id="area"
-        [options]="zones"
-        class="flex-auto"
-        [(ngModel)]="selectedArea"
-        optionLabel="name"
-        placeholder="Zona/Cuadrante"
         [style]="{ width: '100%' }"
       ></p-dropdown>
     </div>
@@ -157,7 +166,7 @@
         id="area"
         [options]="types"
         class="flex-auto"
-        [(ngModel)]="selectedArea"
+        [(ngModel)]="maintenance.type"
         optionLabel="name"
         placeholder="Tipo"
         [style]="{ width: '100%' }"
@@ -166,10 +175,10 @@
     <div class="flex align-items-center gap-3 mb-3">
       <label for="area" class="font-semibold w-6rem"> Programa </label>
       <p-dropdown
-        id="area"
-        [options]="activities"
+        id="program"
+        [options]="programs"
         class="flex-auto"
-        [(ngModel)]="selectedArea"
+        [(ngModel)]="maintenance.program"
         optionLabel="name"
         placeholder="Programa"
         [style]="{ width: '100%' }"
@@ -181,7 +190,7 @@
         pInputText
         id="name"
         class="flex-auto"
-        [(ngModel)]="editingUser.name"
+        [(ngModel)]="maintenance.coordinateX"
         autocomplete="off"
         placeholder="Coordenada X"
       />
@@ -192,45 +201,41 @@
         pInputText
         id="name"
         class="flex-auto"
-        [(ngModel)]="editingUser.name"
+        [(ngModel)]="maintenance.coordinateY"
         autocomplete="off"
         placeholder="Coordenada Y"
       />
     </div>
-    <div class="flex align-items-center gap-3 mb-3">
-      <label for="name" class="font-semibold w-6rem">Luminarios Viales</label>
-      <input
-        pInputText
-        id="name"
-        class="flex-auto"
-        [(ngModel)]="editingUser.name"
-        autocomplete="off"
+    <div class="flex align-items-center gap-2 mb-2">
+      <label for="streetlights" class="font-semibold w-6rem">Luminarios Viales</label>
+      <p-inputNumber
+        [(ngModel)]="maintenance.streetlights"
+        inputId="minmax"
+        [min]="0"
+        id="streetlights"
         placeholder="Luminarios Viales"
-      />
+        />
     </div>
-    <div class="flex align-items-center gap-3 mb-3">
-      <label for="name" class="font-semibold w-6rem">Luminarios Peatonales</label>
-      <input
-        pInputText
-        id="name"
-        class="flex-auto"
-        [(ngModel)]="editingUser.name"
-        autocomplete="off"
+    <div class="flex align-items-center gap-2 mb-2">
+      <label for="pedestrianLighting" class="font-semibold w-6rem">Luminarios Peatonales</label>
+      <p-inputNumber
+        [(ngModel)]="maintenance.pedestrianLighting"
+        inputId="pedestrian"
+        [min]="0"
+        id="pedestrianLighting"
         placeholder="Luminarios Peatonales"
       />
     </div>
-    <div class="flex align-items-center gap-3 mb-3">
-      <label for="name" class="font-semibold w-6rem">Luminarios en Servicio</label>
-      <input
-        pInputText
-        id="name"
-        class="flex-auto"
-        [(ngModel)]="editingUser.name"
-        autocomplete="off"
+    <div class="flex align-items-center gap-2 mb-2">
+      <label for="luminariesInService" class="font-semibold w-6rem">Luminarios en Servicio</label>
+      <p-inputNumber
+        [(ngModel)]="maintenance.luminariesInService"
+        inputId="luminariesInService"
+        [min]="0"
+        id="luminariesInService"
         placeholder="Luminarios en Servicio"
       />
     </div>
-
     <div class="flex justify-content-between gap-2 mt-4">
       <p-button
         label="Cancelar"
@@ -238,16 +243,21 @@
         (onClick)="visible = false"
       ></p-button>
       <p-button
-        [label]="dialogMode === 'create' ? 'Crear' : 'Guardar'"
-        (onClick)="saveUser()"
+        label="Guardar"
+        (onClick)="saveMaintenance()"
         styleClass="buttonDialog"
         [disabled]="
-          !editingUser.name ||
-          !editingUser.mail ||
-          !selectedProfile ||
-          !selectedDepots ||
-          !selectedArea ||
-          editingUser.active === undefined
+          !maintenance.road ||
+          !maintenance.activity ||
+          !maintenance.program ||
+          !maintenance.type ||
+          !maintenance.coordinateX ||
+          !maintenance.coordinateY ||
+          !maintenance.streetlights ||
+          !maintenance.pedestrianLighting ||
+          !maintenance.luminariesInService ||
+          !maintenance.mayoralty ||
+          !maintenance.zone
         "
       ></p-button>
     </div>

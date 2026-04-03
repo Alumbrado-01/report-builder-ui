@@ -4,7 +4,7 @@
 
 export const environment = {
   production: true,
-  baseUrl: '/api',
+  baseUrl: 'http://localhost:8080',
   logoGobiernoUrl: '../../../assets/img/logo-gobierno.jpeg',
 };
 

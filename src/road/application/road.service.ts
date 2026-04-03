@@ -4,6 +4,7 @@ import { RoadWebServiceImplements } from '../infrestructure/output_adapters/road
 import { catchError, map, Observable, of } from 'rxjs';
 import { IRoadService } from '../infrestructure/input_ports/IRoadService';
 import { RoadRequest } from '../domain/api/roadRequest';
+import {RoadByZoneRequest} from "../domain/api/roadByZoneRequest";
 
 @Injectable({
   providedIn: 'root',
@@ -53,6 +54,16 @@ export class RoadService implements IRoadService {
       catchError((e) => {
         console.error(e);
         return of({} as Road);
+      })
+    );
+  }
+
+  getRoadsByZoneAndType(request: RoadByZoneRequest): Observable<Road[]> {
+    return this.service.getRoadsByZoneAndType(request).pipe(
+      map((response) => (this.profileList = response)),
+      catchError((e) => {
+        console.error(e);
+        return of({} as Road[]);
       })
     );
   }
