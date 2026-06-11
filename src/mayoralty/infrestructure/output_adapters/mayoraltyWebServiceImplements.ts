@@ -27,6 +27,7 @@ export class MayoraltyWebServiceImplements implements IMayoraltyWebService {
   }
 
   create(request: MayoraltyRequest): Observable<Mayoralty> {
+    console.log(request);
     return this.http.post<Mayoralty>(profileRest.mayoraltyService.SAVE, request, {
         headers: this.headers(),
       });

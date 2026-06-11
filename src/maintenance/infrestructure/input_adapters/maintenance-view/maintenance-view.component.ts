@@ -22,15 +22,14 @@ import {Mayoralty} from "../../../../mayoralty/domain/object/mayoralty";
 import {ZoneService} from "../../../../zone/application/zone.service";
 import {Zone} from "../../../../zone/domain/object/zone";
 import {TypeService} from "../../../../type/application/type.service";
-import {Type} from "../../../../type/domain/object/type";
 import {Maintenance} from "../../../domain/object/maintenance";
 import {MaintenanceService} from "../../../application/maintenance.service";
 import {RadioButtonModule} from 'primeng/radiobutton';
-import {RoadByZoneRequest} from "../../../../road/domain/api/roadByZoneRequest";
 import {ProgramService} from "../../../../program/application/program.service";
 import {Program} from "../../../../program/domain/object/program";
 import {InputNumberModule} from 'primeng/inputnumber';
 import {MaintenanceRequest} from "../../../domain/api/maintenanceRequest";
+import {Type} from "../../../../type/domain/object/type";
 
 @Component({
   selector: 'app-maintenance-view',
@@ -87,7 +86,7 @@ export class MaintenanceViewComponent implements OnInit {
 
   ngOnInit(): void {
     this.getUserFromLocalStorage();
-    this.loadMaintenanceList()
+    this.getRoadsByType(true);
     this.loadActivities();
     this.loadMayoralty();
     this.loadPrograms();
@@ -100,6 +99,11 @@ export class MaintenanceViewComponent implements OnInit {
     const jsonParsed = JSON.parse(sessionUser);
     if (jsonParsed) {
       this.userData = jsonParsed.user;
+      if (this.userData.profile.profile === 'Administrador') {
+        this.loadMaintenanceList();
+      } else {
+        this.loadMaintenanceListByUser();
+      }
     }
   }
 
@@ -153,12 +157,26 @@ export class MaintenanceViewComponent implements OnInit {
         this.programs = data.find(program => program.active) ? data.filter(program => program.active) : data;
       },
       error: (err) => {
-        console.error('Error cargando tipos:', err);
+        console.error('Error cargando programas:', err);
       },
     });
   }
 
   private loadMaintenanceList(): void {
+    this.loading = true;
+    this.maintenanceService.findAll().subscribe({
+      next: (data) => {
+        this.maintenanceList = data;
+        this.loading = false;
+      },
+      error: (err) => {
+        console.error('Error cargando registro de mantenimiento:', err);
+        this.loading = false;
+      },
+    });
+  }
+
+  private loadMaintenanceListByUser(): void {
     this.loading = true;
     this.maintenanceService.findByUser(this.userData).subscribe({
       next: (data) => {
@@ -206,9 +224,13 @@ export class MaintenanceViewComponent implements OnInit {
       console.log(request);
       this.maintenanceService.create(request).subscribe({
         next: (data) => {
-            Swal.fire('¡Éxito!', 'Se guardo el registro.', 'success');
+          Swal.fire('¡Éxito!', 'Se guardo el registro.', 'success');
+          if (this.userData.profile.profile === 'Administrador') {
             this.loadMaintenanceList();
-            this.visible = false;
+          } else {
+            this.loadMaintenanceListByUser();
+          }
+          this.visible = false;
         },
         error: (err) => {
           console.error('Error creando registro de mantenimiento:', err);
@@ -229,16 +251,13 @@ export class MaintenanceViewComponent implements OnInit {
     this.showLogs = false;
   }
 
-  public getRoadsByZoneAndType(type: any) {
-    if (this.userData.zoneList && type != null) {
-      const request: RoadByZoneRequest = {
-        rvpRvs: type,
-        zoneList: this.userData.zoneList
-      }
+  public getRoadsByType(type: boolean) {
+    if (type != null) {
       this.load = true;
       this.maintenance = {};
       this.roads = [];
-      this.roadService.getRoadsByZoneAndType(request).subscribe({
+      console.log(type);
+      this.roadService.getRoadsByType(type.toString()).subscribe({
         next: (data) => {
           this.roads = data;
           this.load = false;
@@ -251,10 +270,9 @@ export class MaintenanceViewComponent implements OnInit {
     }
   }
 
-  showMayoraltyAndZone() {
+  showMayoralty() {
     if (this.maintenance?.road) {
       this.maintenance.mayoralty = this.maintenance?.road.mayoralty
-      this.maintenance.zone = this.maintenance?.road.zone
     }
   }
 

@@ -150,13 +150,13 @@
     </div>
 
     <div class="flex align-items-center gap-3 mb-3">
-    <label for="depot" class="font-semibold w-6rem"> Almacén </label>
+    <label for="zone" class="font-semibold w-6rem"> Zonas </label>
     <p-multiSelect
-      [options]="depots"
-      [(ngModel)]="selectedDepots"
+      [options]="zones"
+      [(ngModel)]="selectedZones"
       class="flex-auto"
       optionLabel="name"
-      placeholder="Selecciona los almacenes asignados"
+      placeholder="Selecciona las zonas asignadas"
       [style]="{ width: '100%' }"
       appendTo="body"
     ></p-multiSelect>
@@ -205,7 +205,6 @@
           !editingUser.name ||
           !editingUser.mail ||
           !selectedProfile ||
-          !selectedDepots ||
           !selectedArea ||
           editingUser.active === undefined
         "

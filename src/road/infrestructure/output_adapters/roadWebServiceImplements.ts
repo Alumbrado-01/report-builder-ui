@@ -6,7 +6,6 @@ import { Road } from '../../domain/object/road';
 import { Observable } from 'rxjs';
 import { RoadRequest } from '../../domain/api/roadRequest';
 import { TokenService } from '../../../app/Services/autenticationService/tokenService';
-import {RoadByZoneRequest} from "../../domain/api/roadByZoneRequest";
 
 @Injectable({
   providedIn: 'root',
@@ -54,9 +53,9 @@ export class RoadWebServiceImplements implements IRoadWebService {
       })
   }
 
-  getRoadsByZoneAndType(request: RoadByZoneRequest): Observable<Road[]> {
+  getRoadsByType(rvpRvs: string): Observable<Road[]> {
     return this.http
-      .post<Road[]>(profileRest.roadService.FIND_BY_ZONE_AND_TYPE, request, {
+      .get<Road[]>(`${profileRest.roadService.FIND_BY_TYPE}/${rvpRvs}`, {
         headers: this.headers(),
       })
   }

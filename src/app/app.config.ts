@@ -24,6 +24,14 @@ import {ILoginService} from "../login/infrestructure/input_ports/ILoginService";
 import {LoginService} from "../login/application/login.service";
 import {IRoadService} from "../road/infrestructure/input_ports/IRoadService";
 import {RoadService} from "../road/application/road.service";
+import {IMayoraltyService} from "../mayoralty/infrestructure/input_ports/IMayoraltyService";
+import {MayoraltyService} from "../mayoralty/application/mayoralty.service";
+import {IActivityService} from "../activity/infrestructure/input_ports/IActivityService";
+import {ActivityService} from "../activity/application/activity.service";
+import {TypeService} from "../type/application/type.service";
+import {ITypeService} from "../type/infrestructure/input_ports/ITypeService";
+import {IProgramService} from "../program/infrestructure/input_ports/IProgramService";
+import {ProgramService} from "../program/application/program.service";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -41,5 +49,10 @@ export const appConfig: ApplicationConfig = {
     { provide: ILogService, useClass: LogService },
     { provide: ILoginService, useClass: LoginService },
     { provide: IRoadService, useClass: RoadService},
+    { provide: IMayoraltyService, useClass: MayoraltyService},
+    { provide: IActivityService, useClass: ActivityService},
+    { provide: IMayoraltyService, useClass: MayoraltyService},
+    { provide: ITypeService, useClass: TypeService},
+    { provide: IProgramService, useClass: ProgramService},
   ],
 };

@@ -10,11 +10,11 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import Swal from "sweetalert2";
 import {User} from "../../../../user/domain/object/user";
 import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/log-view/log-view.component";
-import {IRoadService} from "../../input_ports/IRoadService";
-import {Road} from "../../../domain/object/road";
-import {RoadRequest} from "../../../domain/api/roadRequest";
 import {IMayoraltyService} from "../../../../mayoralty/infrestructure/input_ports/IMayoraltyService";
 import {Mayoralty} from "../../../../mayoralty/domain/object/mayoralty";
+import {IProgramService} from "../../input_ports/IProgramService";
+import {Program} from "../../../domain/object/program";
+import {ProgramRequest} from "../../../domain/api/programRequest";
 
 @Component({
   selector: 'app-mayoralty-view',
@@ -30,16 +30,16 @@ import {Mayoralty} from "../../../../mayoralty/domain/object/mayoralty";
     AutoCompleteModule,
     LogViewComponent,
   ],
-  templateUrl: './road-view.component.html',
-  styleUrl: './road-view.component.scss',
+  templateUrl: './program-view.component.html',
+  styleUrl: './program-view.component.scss',
 })
-export class RoadViewComponent implements OnInit {
+export class ProgramViewComponent implements OnInit {
 
-  private readonly roadService = inject(IRoadService);
+  private readonly programService = inject(IProgramService);
   private readonly mayoraltyService = inject(IMayoraltyService);
 
-  road: Road = {};
-  roadList: Road[] = [];
+  program: Program = {};
+  programList: Program[] = [];
   mayoraltyList: Mayoralty[] = [];
   loading = false;
   @ViewChild('dt') public dt: any;
@@ -49,9 +49,8 @@ export class RoadViewComponent implements OnInit {
   dialogTitle: string = '';
   public showLogs: boolean = false;
   public entity: number;
-  public table: string = 'road';
+  public table: string = 'program';
   public userData: User;
-  public roadOptions: { label: string; value: boolean }[] = [];
 
   ngOnInit(): void {
     this.load();
@@ -64,24 +63,14 @@ export class RoadViewComponent implements OnInit {
     const jsonParsed = JSON.parse(sessionUser);
     if(jsonParsed){
       this.userData = jsonParsed.user;
-      if(this.userData?.profile.profile === 'Operador'){
-        this.roadOptions = [
-          { label: 'Red Vial Secundaria', value: false }
-        ];
-      } else {
-        this.roadOptions = [
-          { label: 'Red Vial Primaria', value: true },
-          { label: 'Red Vial Secundaria', value: false }
-        ];
-      }
     }
   }
 
   private load(): void {
     this.loading = true;
-    this.roadService.findAll().subscribe({
+    this.programService.findAll().subscribe({
       next: (data) => {
-        this.roadList = data;
+        this.programList = data;
         this.loading = false;
       },
       error: (err) => {
@@ -110,32 +99,33 @@ export class RoadViewComponent implements OnInit {
     this.dt!.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
-  createRoad() {
+  createProgram() {
+    this.program = {};
     this.dialogMode = 'create';
-    this.dialogTitle = 'Crear Nueva Vialidad';
+    this.dialogTitle = 'Crear Nuevo Programa';
     this.visible = true;
   }
 
-  showDialog(road: Road) {
+  showDialog(program: Program) {
     this.dialogMode = 'edit';
-    this.dialogTitle = 'Editar Vialidad';
-    this.road = { ...road };
+    this.dialogTitle = 'Editar Programa';
+    this.program = { ...program };
     this.visible = true;
   }
 
-    public verifyRoadExists(): boolean {
-    return this.roadList.some(road =>
-      road.name?.toLowerCase().trim() === this.road.name?.toLowerCase().trim() &&
-      road.idRoad !== this.road.idRoad
+    public verifyprogramExists(): boolean {
+    return this.programList.some(program =>
+      program.name?.toLowerCase().trim() === this.program.name?.toLowerCase().trim() &&
+      program.idProgram !== this.program.idProgram
     );
   }
 
-  saveRoad() {
-    const roadExists = this.verifyRoadExists();
-    if (roadExists){
+  saveProgram() {
+    const programExists = this.verifyprogramExists();
+    if (programExists){
       this.visible = false;
       Swal.fire({
-        title: `La vialidad "${this.road.name}" ya existe`,
+        title: `El programa "${this.program.name}" ya existe`,
         icon: "warning",
         draggable: true
       });
@@ -154,24 +144,22 @@ export class RoadViewComponent implements OnInit {
          draggable: true
        });
      }
-    if (this.road) {
-      const requestData: RoadRequest = {
+    if (this.program) {
+      const requestData: ProgramRequest = {
         modelRequest: {
           ...(this.dialogMode === 'edit'
-            ? { idRoad: this.road.idRoad }
+            ? { idProgram: this.program.idProgram }
             : {}),
-          name: this.road.name,
-          mayoralty: this.road.mayoralty,
-          rvpRvs: this.road.rvpRvs,
-          active: this.road.active,
+          name: this.program.name,
+          active: this.program.active,
         },
         user: this.userData,
       };
 
       const action =
         this.dialogMode === 'create'
-          ? this.roadService.create(requestData)
-          : this.roadService.update(requestData);
+          ? this.programService.create(requestData)
+          : this.programService.update(requestData);
 
       action.subscribe({
         next: () => {

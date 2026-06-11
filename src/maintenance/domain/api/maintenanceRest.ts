@@ -8,5 +8,6 @@ export default {
     UPDATE: `${environment.baseUrl}/dap/reportBuilder/v1/maintenanceController/update`,
     FIND_BY_ID: `${environment.baseUrl}/dap/reportBuilder/v1/maintenanceController/findById`,
     FIND_BY_USER: `${environment.baseUrl}/dap/reportBuilder/v1/maintenanceController/findByUser`,
+    FIND_REPORT: `${environment.baseUrl}/dap/reportBuilder/v1/maintenanceController/findReport`,
   },
 };

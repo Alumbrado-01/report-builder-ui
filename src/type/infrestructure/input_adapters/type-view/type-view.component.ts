@@ -10,9 +10,9 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import Swal from "sweetalert2";
 import {User} from "../../../../user/domain/object/user";
 import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/log-view/log-view.component";
-import {IRoadService} from "../../input_ports/IRoadService";
-import {Road} from "../../../domain/object/road";
-import {RoadRequest} from "../../../domain/api/roadRequest";
+import {ITypeService} from "../../input_ports/ITypeService";
+import {Type} from "../../../domain/object/type";
+import {TypeRequest} from "../../../domain/api/typeRequest";
 import {IMayoraltyService} from "../../../../mayoralty/infrestructure/input_ports/IMayoraltyService";
 import {Mayoralty} from "../../../../mayoralty/domain/object/mayoralty";
 
@@ -30,16 +30,16 @@ import {Mayoralty} from "../../../../mayoralty/domain/object/mayoralty";
     AutoCompleteModule,
     LogViewComponent,
   ],
-  templateUrl: './road-view.component.html',
-  styleUrl: './road-view.component.scss',
+  templateUrl: './type-view.component.html',
+  styleUrl: './type-view.component.scss',
 })
-export class RoadViewComponent implements OnInit {
+export class TypeViewComponent implements OnInit {
 
-  private readonly roadService = inject(IRoadService);
+  private readonly typeService = inject(ITypeService);
   private readonly mayoraltyService = inject(IMayoraltyService);
 
-  road: Road = {};
-  roadList: Road[] = [];
+  type: Type = {};
+  typeList: Type[] = [];
   mayoraltyList: Mayoralty[] = [];
   loading = false;
   @ViewChild('dt') public dt: any;
@@ -49,9 +49,8 @@ export class RoadViewComponent implements OnInit {
   dialogTitle: string = '';
   public showLogs: boolean = false;
   public entity: number;
-  public table: string = 'road';
+  public table: string = 'type';
   public userData: User;
-  public roadOptions: { label: string; value: boolean }[] = [];
 
   ngOnInit(): void {
     this.load();
@@ -64,24 +63,14 @@ export class RoadViewComponent implements OnInit {
     const jsonParsed = JSON.parse(sessionUser);
     if(jsonParsed){
       this.userData = jsonParsed.user;
-      if(this.userData?.profile.profile === 'Operador'){
-        this.roadOptions = [
-          { label: 'Red Vial Secundaria', value: false }
-        ];
-      } else {
-        this.roadOptions = [
-          { label: 'Red Vial Primaria', value: true },
-          { label: 'Red Vial Secundaria', value: false }
-        ];
-      }
     }
   }
 
   private load(): void {
     this.loading = true;
-    this.roadService.findAll().subscribe({
+    this.typeService.findAll().subscribe({
       next: (data) => {
-        this.roadList = data;
+        this.typeList = data;
         this.loading = false;
       },
       error: (err) => {
@@ -110,32 +99,32 @@ export class RoadViewComponent implements OnInit {
     this.dt!.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
-  createRoad() {
+  createType() {
     this.dialogMode = 'create';
     this.dialogTitle = 'Crear Nueva Vialidad';
     this.visible = true;
   }
 
-  showDialog(road: Road) {
+  showDialog(type: Type) {
     this.dialogMode = 'edit';
     this.dialogTitle = 'Editar Vialidad';
-    this.road = { ...road };
+    this.type = { ...type };
     this.visible = true;
   }
 
-    public verifyRoadExists(): boolean {
-    return this.roadList.some(road =>
-      road.name?.toLowerCase().trim() === this.road.name?.toLowerCase().trim() &&
-      road.idRoad !== this.road.idRoad
+    public verifytypeExists(): boolean {
+    return this.typeList.some(type =>
+      type.name?.toLowerCase().trim() === this.type.name?.toLowerCase().trim() &&
+      type.idRVP !== this.type.idRVP
     );
   }
 
-  saveRoad() {
-    const roadExists = this.verifyRoadExists();
-    if (roadExists){
+  saveType() {
+    const typeExists = this.verifytypeExists();
+    if (typeExists){
       this.visible = false;
       Swal.fire({
-        title: `La vialidad "${this.road.name}" ya existe`,
+        title: `La vialidad "${this.type.name}" ya existe`,
         icon: "warning",
         draggable: true
       });
@@ -154,24 +143,22 @@ export class RoadViewComponent implements OnInit {
          draggable: true
        });
      }
-    if (this.road) {
-      const requestData: RoadRequest = {
+    if (this.type) {
+      const requestData: TypeRequest = {
         modelRequest: {
           ...(this.dialogMode === 'edit'
-            ? { idRoad: this.road.idRoad }
+            ? { idRVP: this.type.idRVP }
             : {}),
-          name: this.road.name,
-          mayoralty: this.road.mayoralty,
-          rvpRvs: this.road.rvpRvs,
-          active: this.road.active,
+          name: this.type.name,
+          active: this.type.active,
         },
         user: this.userData,
       };
 
       const action =
         this.dialogMode === 'create'
-          ? this.roadService.create(requestData)
-          : this.roadService.update(requestData);
+          ? this.typeService.create(requestData)
+          : this.typeService.update(requestData);
 
       action.subscribe({
         next: () => {

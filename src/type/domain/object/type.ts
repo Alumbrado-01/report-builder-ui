@@ -1,5 +1,6 @@
+
 export interface Type {
-  idRVP: number;
-  name: string;
-  active: boolean;
+  idRVP?: number;
+  name?: string;
+  active?: boolean;
 }

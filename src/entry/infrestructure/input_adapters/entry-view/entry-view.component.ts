@@ -99,10 +99,6 @@ export class EntryViewComponent implements OnInit {
       next: (data) => {
         if(data) {
           this.userData = data;
-          this.depots = data.depotList ? data.depotList : [];
-          if(this.depots && this.depots.length > 0){
-            this.depots = this.depots.filter(d => d.active);
-          }
           this.loading = false;
         }
       },

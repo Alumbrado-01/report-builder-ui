@@ -7,6 +7,7 @@ import { Observable} from 'rxjs';
 import { MaintenanceRequest } from '../../domain/api/maintenanceRequest';
 import { TokenService } from '../../../app/Services/autenticationService/tokenService';
 import {User} from "../../../user/domain/object/user";
+import {ReportRequest} from "../../../pdfmake/domain/api/reportRequest";
 
 @Injectable({
   providedIn: 'root',
@@ -55,4 +56,11 @@ export class MaintenanceWebServiceImplements implements IMaintenanceWebService {
       headers: this.headers(),
     });
   }
+
+  findReport(reportRequest: ReportRequest): Observable<Maintenance[]> {
+    return this.http.post<Maintenance[]>(maintenanceRest.maintenanceService.FIND_REPORT, reportRequest, {
+      headers: this.headers(),
+    });
+  }
+
 }

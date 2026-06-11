@@ -5,6 +5,7 @@ import { IMaintenanceService } from '../infrestructure/input_ports/IMaintenanceS
 import { MaintenanceRequest } from '../domain/api/maintenanceRequest';
 import {MaintenanceWebServiceImplements} from "../infrestructure/output_adapters/maintenanceWebServiceImplement";
 import {User} from "../../user/domain/object/user";
+import {ReportRequest} from "../../pdfmake/domain/api/reportRequest";
 
 @Injectable({
   providedIn: 'root',
@@ -60,6 +61,16 @@ export class MaintenanceService implements IMaintenanceService {
 
   findByUser(user: User): Observable<Maintenance[]> {
     return this.service.findByUser(user).pipe(
+      map((response) => (this.maintenanceList = response)),
+      catchError((e) => {
+        console.error(e);
+        return of([] as Maintenance[]);
+      })
+    );
+  }
+
+  findReport(reportRequest:ReportRequest): Observable<Maintenance[]> {
+    return this.service.findReport(reportRequest).pipe(
       map((response) => (this.maintenanceList = response)),
       catchError((e) => {
         console.error(e);

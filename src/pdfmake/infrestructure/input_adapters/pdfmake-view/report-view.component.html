@@ -16,30 +16,68 @@
       [showClear]="true"
     />
     <div class="mx-4">
-    <label for="basic-url" class="form-label">Almacen: </label>
-    <p-dropdown
-      [options]="depots"
-      [(ngModel)]="reportRequest.depot"
-      placeholder="Selecciona un almacen"
-      [editable]="true"
-      class="border-2 border-black select"
-      optionLabel="name"
-      [showClear]="true"
-    />
-    </div>
-    <div class="mx-4">
-    <label for="basic-url" class="form-label">Área: </label>
+    <label for="zone" class="form-label">Zona/Cuadrante: </label>
     <p-dropdown
       [showClear]="true"
-      [options]="areas"
-      [(ngModel)]="reportRequest.area"
-      placeholder="Selecciona un area"
+      [options]="zones"
+      [(ngModel)]="reportRequest.zone"
+      placeholder="Seleccione zona o cuadrante"
       [editable]="true"
       class="border-2 border-black select"
       optionLabel="name"
     />
     </div>
   </div>
+  <div class="card flex justify-content-start m-2 search">
+    <div class="mx-4">
+      <label for="road" class="form-label">Vialidad: </label>
+      <p-dropdown
+        [options]="roads"
+        [(ngModel)]="reportRequest.road"
+        placeholder="Seleccione vialidad"
+        [editable]="true"
+        class="border-2 border-black select"
+        optionLabel="name"
+        [showClear]="true"
+      />
+    </div>
+  <div class="mx-4">
+    <label for="mayoralty" class="form-label">Alcaldia: </label>
+    <p-dropdown
+      [showClear]="true"
+      [options]="mayoraltyList"
+      [(ngModel)]="reportRequest.mayoralty"
+      placeholder="Seleccione alcaldia"
+      [editable]="true"
+      class="border-2 border-black select"
+      optionLabel="name"
+    />
+  </div>
+    <div class="mx-4">
+      <label for="program" class="form-label">Programa: </label>
+      <p-dropdown
+        [showClear]="true"
+        [options]="programs"
+        [(ngModel)]="reportRequest.program"
+        placeholder="Seleccione programa"
+        [editable]="true"
+        class="border-2 border-black select"
+        optionLabel="name"
+      />
+    </div>
+    <div class="mx-4">
+      <label for="activity" class="form-label">Actividad: </label>
+      <p-dropdown
+        [showClear]="true"
+        [options]="activities"
+        [(ngModel)]="reportRequest.activity"
+        placeholder="Seleccione actividad"
+        [editable]="true"
+        class="border-2 border-black select"
+        optionLabel="name"
+      />
+    </div>
+</div>
   <div>
     <div class="buttons-container">
     <button
@@ -67,7 +105,7 @@
   <div class="card m-3">
     <p-table
       #dt
-      [globalFilterFields]="['folio', 'date', 'depot.name', 'userDispatcher.name', 'userReceiver.name', 'io']"
+      [globalFilterFields]="['road.name', 'zone.name', 'activity.name', 'program.name', 'type.name', 'mayoralty.name', 'coordinateX', 'coordinateY']"
       [value]="movements"
       [paginator]="true"
       [rows]="10"
@@ -82,36 +120,34 @@
           <th scope="col">Vialidad</th>
           <th scope="col">Actividad</th>
           <th scope="col">Alcaldia</th>
-          <th scope="col">Zona</th>
+          <th scope="col">Zona/Cuadrante</th>
           <th scope="col">Programa</th>
           <th scope="col">Coordenada X</th>
           <th scope="col">Coordenada Y</th>
           <th scope="col">PDLs Viales</th>
           <th scope="col">PDLs Peatonales</th>
           <th scope="col">PDLs en Servicio</th>
-          <th scope="col">Zona/Cuadrante</th>
           <th scope="col">Tipo</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-entry>
+      <ng-template pTemplate="body" let-maintenance>
         <tr>
-          <td>{{ entry.folio }}</td>
-          <td>{{ entry.date }}</td>
-          <td>{{ entry.depot.name }}</td>
-          <td>{{ entry.userDispatcher.name }}</td>
-          <td>{{ entry.userReceiver.name }}</td>
-          <td>{{ entry.io? "Entrada" : "Salida" }}</td>
+          <td>{{ maintenance.road.name }}</td>
+          <td>{{ maintenance.activity.name }}</td>
+          <td>{{ maintenance.mayoralty.name }}</td>
+          <td>{{ maintenance.zone.name }}</td>
+          <td>{{ maintenance.program.name }}</td>
+          <td>{{ maintenance.coordinateX }}</td>
+          <td>{{ maintenance.coordinateY }}</td>
+          <td>{{ maintenance.streetlights }}</td>
+          <td>{{ maintenance.pedestrianLighting }}</td>
+          <td>{{ maintenance.luminariesInService }}</td>
+          <td>{{ maintenance.type.name }}</td>
           <td class="text-center">
             <p-button
-              (click)="viewLogs(entry.idMaterialManagement)"
+              (click)="viewLogs(maintenance.idMaintenance)"
               icon="pi pi-book"
               styleClass="p-button-text p-button-danger"
-            ></p-button>
-            <p-button
-              (click)="getPDF(entry)"
-              icon="pi pi-receipt"
-              styleClass="p-button-text"
-              [style]="{ 'margin-right': '.5rem' }"
             ></p-button>
           </td>
         </tr>

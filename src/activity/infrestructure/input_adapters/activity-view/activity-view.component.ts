@@ -10,11 +10,9 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import Swal from "sweetalert2";
 import {User} from "../../../../user/domain/object/user";
 import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/log-view/log-view.component";
-import {IRoadService} from "../../input_ports/IRoadService";
-import {Road} from "../../../domain/object/road";
-import {RoadRequest} from "../../../domain/api/roadRequest";
-import {IMayoraltyService} from "../../../../mayoralty/infrestructure/input_ports/IMayoraltyService";
-import {Mayoralty} from "../../../../mayoralty/domain/object/mayoralty";
+import {ActivityRequest} from "../../../domain/api/activityRequest";
+import {IActivityService} from "../../input_ports/IActivityService";
+import {Activity} from "../../../domain/object/activity";
 
 @Component({
   selector: 'app-mayoralty-view',
@@ -30,17 +28,15 @@ import {Mayoralty} from "../../../../mayoralty/domain/object/mayoralty";
     AutoCompleteModule,
     LogViewComponent,
   ],
-  templateUrl: './road-view.component.html',
-  styleUrl: './road-view.component.scss',
+  templateUrl: './activity-view.component.html',
+  styleUrl: './activity-view.component.scss',
 })
-export class RoadViewComponent implements OnInit {
+export class ActivityViewComponent implements OnInit {
 
-  private readonly roadService = inject(IRoadService);
-  private readonly mayoraltyService = inject(IMayoraltyService);
+  private readonly activityService = inject(IActivityService);
 
-  road: Road = {};
-  roadList: Road[] = [];
-  mayoraltyList: Mayoralty[] = [];
+  activity: Activity = {};
+  activityList: Activity[] = [];
   loading = false;
   @ViewChild('dt') public dt: any;
 
@@ -49,13 +45,11 @@ export class RoadViewComponent implements OnInit {
   dialogTitle: string = '';
   public showLogs: boolean = false;
   public entity: number;
-  public table: string = 'road';
+  public table: string = 'activity';
   public userData: User;
-  public roadOptions: { label: string; value: boolean }[] = [];
 
   ngOnInit(): void {
-    this.load();
-    this.loadMayoralties();
+    this.loadActivities();
     this.getUserFromLocalStorage();
   }
 
@@ -64,38 +58,14 @@ export class RoadViewComponent implements OnInit {
     const jsonParsed = JSON.parse(sessionUser);
     if(jsonParsed){
       this.userData = jsonParsed.user;
-      if(this.userData?.profile.profile === 'Operador'){
-        this.roadOptions = [
-          { label: 'Red Vial Secundaria', value: false }
-        ];
-      } else {
-        this.roadOptions = [
-          { label: 'Red Vial Primaria', value: true },
-          { label: 'Red Vial Secundaria', value: false }
-        ];
-      }
     }
   }
 
-  private load(): void {
+  private loadActivities(): void {
     this.loading = true;
-    this.roadService.findAll().subscribe({
+    this.activityService.findAll().subscribe({
       next: (data) => {
-        this.roadList = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error cargando vialidades:', err);
-        this.loading = false;
-      },
-    });
-  }
-
-  private loadMayoralties(): void {
-    this.loading = true;
-    this.mayoraltyService.findAll().subscribe({
-      next: (data) => {
-        this.mayoraltyList = data;
+        this.activityList = data;
         this.loading = false;
       },
       error: (err) => {
@@ -116,26 +86,26 @@ export class RoadViewComponent implements OnInit {
     this.visible = true;
   }
 
-  showDialog(road: Road) {
+  showDialog(activity: Activity) {
     this.dialogMode = 'edit';
-    this.dialogTitle = 'Editar Vialidad';
-    this.road = { ...road };
+    this.dialogTitle = 'Editar Actividad';
+    this.activity = { ...activity };
     this.visible = true;
   }
 
-    public verifyRoadExists(): boolean {
-    return this.roadList.some(road =>
-      road.name?.toLowerCase().trim() === this.road.name?.toLowerCase().trim() &&
-      road.idRoad !== this.road.idRoad
+    public verifyActivityExists(): boolean {
+    return this.activityList.some(activity =>
+      activity.name?.toLowerCase().trim() === this.activity.name?.toLowerCase().trim() &&
+      activity.idActivity !== this.activity.idActivity
     );
   }
 
   saveRoad() {
-    const roadExists = this.verifyRoadExists();
+    const roadExists = this.verifyActivityExists();
     if (roadExists){
       this.visible = false;
       Swal.fire({
-        title: `La vialidad "${this.road.name}" ya existe`,
+        title: `La actividad "${this.activity.name}" ya existe`,
         icon: "warning",
         draggable: true
       });
@@ -154,29 +124,27 @@ export class RoadViewComponent implements OnInit {
          draggable: true
        });
      }
-    if (this.road) {
-      const requestData: RoadRequest = {
+    if (this.activity) {
+      const requestData: ActivityRequest = {
         modelRequest: {
           ...(this.dialogMode === 'edit'
-            ? { idRoad: this.road.idRoad }
+            ? { idActivity: this.activity.idActivity }
             : {}),
-          name: this.road.name,
-          mayoralty: this.road.mayoralty,
-          rvpRvs: this.road.rvpRvs,
-          active: this.road.active,
+          name: this.activity.name,
+          active: this.activity.active,
         },
         user: this.userData,
       };
 
       const action =
         this.dialogMode === 'create'
-          ? this.roadService.create(requestData)
-          : this.roadService.update(requestData);
+          ? this.activityService.create(requestData)
+          : this.activityService.update(requestData);
 
       action.subscribe({
         next: () => {
           this.visible = false;
-          this.load();
+          this.loadActivities();
         },
         error: (err) => {
           console.error(

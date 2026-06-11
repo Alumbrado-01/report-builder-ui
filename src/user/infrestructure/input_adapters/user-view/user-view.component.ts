@@ -15,11 +15,12 @@ import { Depot } from '../../../../depot/domain/object/depot';
 import { Profile } from '../../../../user_profile/domain/object/profile';
 import { profileService } from '../../../../user_profile/application/profile.service';
 import { Area } from '../../../../area/domain/object/area';
-import { DepotService } from '../../../../depot/application/depot.service';
 import { AreaService } from '../../../../area/application/area.service';
 import Swal from "sweetalert2";
 import {MultiSelectModule} from "primeng/multiselect";
 import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/log-view/log-view.component";
+import {ZoneService} from "../../../../zone/application/zone.service";
+import {Zone} from "../../../../zone/domain/object/zone";
 
 @Component({
   selector: 'app-maintenance-view',
@@ -46,8 +47,8 @@ export class UserViewComponent implements OnInit {
   users: User[] = [];
   filteredUsers: User[] = [];
   loading = false;
-  depots: Depot[] = [];
-  selectedDepots: Depot[];
+  zones: Zone[] = [];
+  selectedZones: Zone[];
   areas: Area[] = [];
   selectedArea: Area | null = null;
   profiles: Profile[] = [];
@@ -58,7 +59,7 @@ export class UserViewComponent implements OnInit {
 
   @ViewChild('dt') public dt: any;
 
-  private readonly depotService = inject(DepotService);
+  private readonly zoneService = inject(ZoneService);
   private readonly areaService = inject(AreaService);
   private readonly profileService = inject(profileService);
 
@@ -73,7 +74,7 @@ export class UserViewComponent implements OnInit {
     name: '',
     profile: null,
     password: '',
-    depotList: null,
+    zoneList: null,
     area: null,
     active: true,
   };
@@ -81,7 +82,7 @@ export class UserViewComponent implements OnInit {
   ngOnInit(): void {
     this.getUserFromLocalStorage();
     this.load();
-    this.loadDepots();
+    this.loadZones();
     this.loadAreas();
     this.loadProfiles();
   }
@@ -116,13 +117,13 @@ export class UserViewComponent implements OnInit {
     });
   }
 
-  private loadDepots(): void {
-    this.depotService.findAll().subscribe({
+  private loadZones(): void {
+    this.zoneService.findAll().subscribe({
       next: (data) => {
-        this.depots = data.find(depot => depot.active) ? data.filter(depot => depot.active) : data;
+        this.zones = data.find(zone => zone.active) ? data.filter(zone => zone.active) : data;
       },
       error: (err) => {
-        console.error('Error cargando almacenes:', err);
+        console.error('Error cargando zonas:', err);
       },
     });
   }
@@ -151,11 +152,11 @@ export class UserViewComponent implements OnInit {
       name: '',
       password: '',
       profile: null,
-      depotList: null,
+      zoneList: null,
       area: null,
       active: true,
     };
-    this.selectedDepots = null;
+    this.selectedZones = null;
     this.selectedArea = null;
     this.selectedProfile = null;
     this.visible = true;
@@ -165,7 +166,7 @@ export class UserViewComponent implements OnInit {
     this.dialogMode = 'edit';
     this.dialogTitle = 'Editar Usuario';
     this.editingUser = { ...user };
-    this.selectedDepots = user.depotList ?? null;
+    this.selectedZones = user.zoneList ?? null;
     this.selectedArea = user.area ?? null;
     this.selectedProfile = user.profile ?? null;
     this.visible = true;
@@ -208,12 +209,12 @@ export class UserViewComponent implements OnInit {
                 }
     if (
       this.editingUser &&
-      this.selectedDepots &&
+      this.selectedZones &&
       this.selectedArea &&
       this.selectedProfile
     ) {
 
-      this.editingUser.depotList = this.selectedDepots;
+      this.editingUser.zoneList = this.selectedZones;
       this.editingUser.area = this.selectedArea;
       this.editingUser.profile = this.selectedProfile;
 
@@ -222,7 +223,7 @@ export class UserViewComponent implements OnInit {
         mail: this.editingUser.mail,
         password: this.editingUser.password,
         profile: { idProfile: this.selectedProfile.idProfile },
-        depotList: this.selectedDepots,
+        zoneList: this.selectedZones,
         area: { idArea: this.selectedArea.idArea },
         active: this.editingUser.active,
       };

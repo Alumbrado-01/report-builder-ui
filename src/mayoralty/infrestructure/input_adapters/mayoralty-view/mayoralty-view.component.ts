@@ -10,11 +10,9 @@ import { AutoCompleteModule } from 'primeng/autocomplete';
 import Swal from "sweetalert2";
 import {User} from "../../../../user/domain/object/user";
 import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/log-view/log-view.component";
-import {IRoadService} from "../../input_ports/IRoadService";
-import {Road} from "../../../domain/object/road";
-import {RoadRequest} from "../../../domain/api/roadRequest";
-import {IMayoraltyService} from "../../../../mayoralty/infrestructure/input_ports/IMayoraltyService";
-import {Mayoralty} from "../../../../mayoralty/domain/object/mayoralty";
+import {IMayoraltyService} from "../../input_ports/IMayoraltyService";
+import {Mayoralty} from "../../../domain/object/mayoralty";
+import {MayoraltyRequest} from "../../../domain/api/mayoraltyRequest";
 
 @Component({
   selector: 'app-mayoralty-view',
@@ -30,16 +28,14 @@ import {Mayoralty} from "../../../../mayoralty/domain/object/mayoralty";
     AutoCompleteModule,
     LogViewComponent,
   ],
-  templateUrl: './road-view.component.html',
-  styleUrl: './road-view.component.scss',
+  templateUrl: './mayoralty-view.component.html',
+  styleUrl: './mayoralty-view.component.scss',
 })
-export class RoadViewComponent implements OnInit {
+export class MayoraltyViewComponent implements OnInit {
 
-  private readonly roadService = inject(IRoadService);
   private readonly mayoraltyService = inject(IMayoraltyService);
 
-  road: Road = {};
-  roadList: Road[] = [];
+  mayoralty: Mayoralty = {};
   mayoraltyList: Mayoralty[] = [];
   loading = false;
   @ViewChild('dt') public dt: any;
@@ -49,12 +45,10 @@ export class RoadViewComponent implements OnInit {
   dialogTitle: string = '';
   public showLogs: boolean = false;
   public entity: number;
-  public table: string = 'road';
+  public table: string = 'mayoralty';
   public userData: User;
-  public roadOptions: { label: string; value: boolean }[] = [];
 
   ngOnInit(): void {
-    this.load();
     this.loadMayoralties();
     this.getUserFromLocalStorage();
   }
@@ -64,31 +58,7 @@ export class RoadViewComponent implements OnInit {
     const jsonParsed = JSON.parse(sessionUser);
     if(jsonParsed){
       this.userData = jsonParsed.user;
-      if(this.userData?.profile.profile === 'Operador'){
-        this.roadOptions = [
-          { label: 'Red Vial Secundaria', value: false }
-        ];
-      } else {
-        this.roadOptions = [
-          { label: 'Red Vial Primaria', value: true },
-          { label: 'Red Vial Secundaria', value: false }
-        ];
-      }
     }
-  }
-
-  private load(): void {
-    this.loading = true;
-    this.roadService.findAll().subscribe({
-      next: (data) => {
-        this.roadList = data;
-        this.loading = false;
-      },
-      error: (err) => {
-        console.error('Error cargando vialidades:', err);
-        this.loading = false;
-      },
-    });
   }
 
   private loadMayoralties(): void {
@@ -110,32 +80,33 @@ export class RoadViewComponent implements OnInit {
     this.dt!.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
-  createRoad() {
+  createMayoralty() {
     this.dialogMode = 'create';
-    this.dialogTitle = 'Crear Nueva Vialidad';
+    this.dialogTitle = 'Crear Nueva Alcaldia';
+    this.mayoralty = {};
     this.visible = true;
   }
 
-  showDialog(road: Road) {
+  showDialog(mayoralty: Mayoralty) {
     this.dialogMode = 'edit';
-    this.dialogTitle = 'Editar Vialidad';
-    this.road = { ...road };
+    this.dialogTitle = 'Editar Alcaldia';
+    this.mayoralty = { ...mayoralty };
     this.visible = true;
   }
 
-    public verifyRoadExists(): boolean {
-    return this.roadList.some(road =>
-      road.name?.toLowerCase().trim() === this.road.name?.toLowerCase().trim() &&
-      road.idRoad !== this.road.idRoad
+    public verifyMayoraltyExists(): boolean {
+    return this.mayoraltyList.some(activity =>
+      activity.name?.toLowerCase().trim() === this.mayoralty.name?.toLowerCase().trim() &&
+      activity.idMayoralty !== this.mayoralty.idMayoralty
     );
   }
 
-  saveRoad() {
-    const roadExists = this.verifyRoadExists();
-    if (roadExists){
+  saveMayoralty() {
+    const mayoraltyExists = this.verifyMayoraltyExists();
+    if (mayoraltyExists){
       this.visible = false;
       Swal.fire({
-        title: `La vialidad "${this.road.name}" ya existe`,
+        title: `La alcaldia "${this.mayoralty.name}" ya existe`,
         icon: "warning",
         draggable: true
       });
@@ -154,29 +125,27 @@ export class RoadViewComponent implements OnInit {
          draggable: true
        });
      }
-    if (this.road) {
-      const requestData: RoadRequest = {
+    if (this.mayoralty) {
+      const requestData: MayoraltyRequest = {
         modelRequest: {
           ...(this.dialogMode === 'edit'
-            ? { idRoad: this.road.idRoad }
+            ? { idMayoralty: this.mayoralty.idMayoralty }
             : {}),
-          name: this.road.name,
-          mayoralty: this.road.mayoralty,
-          rvpRvs: this.road.rvpRvs,
-          active: this.road.active,
+          name: this.mayoralty.name,
+          active: this.mayoralty.active,
         },
         user: this.userData,
       };
 
       const action =
         this.dialogMode === 'create'
-          ? this.roadService.create(requestData)
-          : this.roadService.update(requestData);
+          ? this.mayoraltyService.create(requestData)
+          : this.mayoraltyService.update(requestData);
 
       action.subscribe({
         next: () => {
           this.visible = false;
-          this.load();
+          this.loadMayoralties();
         },
         error: (err) => {
           console.error(

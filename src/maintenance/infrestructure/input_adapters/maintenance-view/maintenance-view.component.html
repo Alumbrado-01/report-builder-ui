@@ -97,7 +97,7 @@
     </span>
     <div class="flex justify-content-center align-items-center gap-2 mb-4">
       <p-radioButton
-        (ngModelChange)="getRoadsByZoneAndType($event)"
+        (ngModelChange)="getRoadsByType($event)"
         name="type"
         [value]="true"
         [(ngModel)]="radioValue"
@@ -106,7 +106,7 @@
         Red Vial Primaria
       </label>
       <p-radioButton
-        (ngModelChange)="getRoadsByZoneAndType($event)"
+        (ngModelChange)="getRoadsByType($event)"
         name="type"
         [value]="false"
         [(ngModel)]="radioValue"
@@ -118,7 +118,7 @@
     <div *ngIf="!load" class="flex align-items-center gap-3 mb-3">
       <label for="road" class="font-semibold w-6rem"> Vialidad </label>
       <p-dropdown
-        (onChange)="showMayoraltyAndZone()"
+        (onChange)="showMayoralty()"
         id="road"
         [options]="roads"
         class="flex-auto"
@@ -128,8 +128,8 @@
         [style]="{ width: '100%' }"
       ></p-dropdown>
     </div>
-    <div *ngIf="!load" class="flex flex-column gap-2">
-      <label for="mayoralty">Alcaldia</label>
+    <div *ngIf="!load" class="flex flex-column gap-2 mb-3">
+      <label for="mayoralty" class="font-semibold w-6rem"> Alcaldia </label>
       <input
         placeholder="Alcaldia"
         pInputText
@@ -138,18 +138,20 @@
         value="{{maintenance?.mayoralty?.name}}"
       />
     </div>
-    <div *ngIf="!load" class="flex flex-column gap-2 mb-3">
-      <label for="mayoralty">Zona/Cuadrante</label>
-      <input
-        placeholder="Zona/Cuadrante"
-        pInputText
+    <div class="flex align-items-center gap-3 mb-3">
+      <label for="zone" class="font-semibold w-6rem">Zona / Cuadrante</label>
+      <p-dropdown
         id="zone"
-        disabled
-        value="{{maintenance?.zone?.name}}"
-      />
+        [options]="zones"
+        class="flex-auto"
+        [(ngModel)]="maintenance.zone"
+        optionLabel="name"
+        placeholder="Zona/Cuadrante"
+        [style]="{ width: '100%' }"
+      ></p-dropdown>
     </div>
     <div class="flex align-items-center gap-3 mb-3">
-      <label for="activity" class="font-semibold w-6rem"> Actividad Realizada </label>
+      <label for="activity" class="font-semibold w-6rem">Actividad Realizada</label>
       <p-dropdown
         id="activity"
         [options]="activities"

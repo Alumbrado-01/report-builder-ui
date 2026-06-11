@@ -1,5 +1,5 @@
 <div class="main">
-  <div class="title"><h1>Vialidades</h1></div>
+  <div class="title"><h1>Alcaldias</h1></div>
   <!-- Buscador -->
   <div class="card flex justify-content-between m-5 search">
     <div class="flex justify-items-start">
@@ -18,8 +18,8 @@
     <!-- Nuevo área -->
     <p-button
       class="newArea"
-      (onClick)="createRoad()"
-      label="Agregar Vialidad"
+      (onClick)="createMayoralty()"
+      label="Agregar Alcaldia"
       styleClass="p-button-primary"
     ></p-button>
   </div>
@@ -28,8 +28,8 @@
   <div class="mx-3">
     <p-table
       #dt
-      [globalFilterFields]="['name','mayoralty.name','rvpRvs', 'active']"
-      [value]="roadList"
+      [globalFilterFields]="['name','active']"
+      [value]="mayoraltyList"
       [loading]="loading"
       [paginator]="true"
       [rowsPerPageOptions]="[10, 20, 50]"
@@ -41,27 +41,23 @@
       <ng-template pTemplate="header">
         <tr>
           <th scope="col" style="width: 40rem">Nombre</th>
-          <th scope="col" style="width: 20rem">Alcaldia</th>
-          <th scope="col" style="width: 20rem">RVP/RVS</th>
           <th scope="col" style="width: 20rem">Estado</th>
           <th scope="col" class="text-center" style="width: 20rem">Opciones</th>
         </tr>
       </ng-template>
-      <ng-template pTemplate="body" let-road>
+      <ng-template pTemplate="body" let-mayoralty>
         <tr>
-          <td>{{ road.name }}</td>
-          <td>{{ road.mayoralty?.name }}</td>
-          <td>{{ road.rvpRvs ? 'RVP' : 'RVS'}}</td>
-          <td>{{ road.active ? "Activo" : "Inactivo" }}</td>
+          <td>{{ mayoralty.name }}</td>
+          <td>{{ mayoralty.active ? "Activo" : "Inactivo" }}</td>
           <td class="text-center">
             <p-button
-              (onClick)="showDialog(road)"
+              (onClick)="showDialog(mayoralty)"
               icon="pi pi-pencil"
               styleClass="p-button-text"
               [style]="{ 'margin-right': '.5rem' }"
             ></p-button>
             <p-button
-              (onClick)="viewLogs(road.idRoad)"
+              (onClick)="viewLogs(mayoralty.idMayoralty)"
               icon="pi pi-book"
               styleClass="p-button-text p-button-danger"
             ></p-button>
@@ -70,7 +66,7 @@
       </ng-template>
       <ng-template pTemplate="emptymessage">
         <tr>
-          <td colspan="4" class="text-center">No se encontraron vialidades</td>
+          <td colspan="4" class="text-center">No se encontraron alcaldias</td>
         </tr>
       </ng-template>
     </p-table>
@@ -86,8 +82,8 @@
     <span class="p-text-secondary block my-5">
       {{
         dialogMode === "create"
-          ? "Ingresa la información de la vialidad:"
-          : "Actualizar información de la vialidad:"
+          ? "Ingresa la información de la alcaldia:"
+          : "Actualizar información de la alcaldia:"
       }}
     </span>
 
@@ -97,35 +93,10 @@
         pInputText
         id="name"
         class="flex-auto"
-        [(ngModel)]="road.name"
+        [(ngModel)]="mayoralty.name"
         autocomplete="off"
-        placeholder="Nombre de la vialidad"
+        placeholder="Nombre del área"
       />
-    </div>
-    <div class="flex align-items-center gap-3 mb-3">
-      <label for="alcaldia" class="font-semibold w-6rem"> Alcaldia </label>
-      <p-dropdown
-        id="program"
-        [options]="mayoraltyList"
-        class="flex-auto"
-        [(ngModel)]="road.mayoralty"
-        optionLabel="name"
-        placeholder="Alcaldia"
-        [style]="{ width: '100%' }"
-      ></p-dropdown>
-    </div>
-    <div class="flex align-items-center gap-3 mb-3">
-      <label for="rvpRvs" class="font-semibold w-6rem">Tipo</label>
-      <p-dropdown
-        class="flex-auto"
-        [options]=roadOptions
-        [(ngModel)]="road.rvpRvs"
-        optionLabel="label"
-        optionValue="value"
-        placeholder="Tipo de vialidad"
-        [style]="{ width: '100%' }"
-      >
-      </p-dropdown>
     </div>
     <div class="flex align-items-center gap-3 mb-3">
       <label for="active" class="font-semibold w-6rem">Estado</label>
@@ -135,7 +106,7 @@
           { label: 'Activo', value: true },
           { label: 'Inactivo', value: false }
         ]"
-        [(ngModel)]="road.active"
+        [(ngModel)]="mayoralty.active"
         optionLabel="label"
         optionValue="value"
         placeholder="Estado de sistema"
@@ -151,11 +122,11 @@
       ></p-button>
       <p-button
         [label]="dialogMode === 'create' ? 'Crear' : 'Guardar'"
-        (onClick)="saveRoad()"
+        (onClick)="saveMayoralty()"
         styleClass="buttonDialog"
         [disabled]="
-          !road.name ||
-          road.active === undefined
+          !mayoralty.name ||
+          mayoralty.active === undefined
         "
       ></p-button>
     </div>

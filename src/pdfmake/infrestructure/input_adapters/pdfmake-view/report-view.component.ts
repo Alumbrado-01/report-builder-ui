@@ -3,10 +3,6 @@ import * as XLSX from 'xlsx';
 import { saveAs } from 'file-saver';
 import { FormsModule } from '@angular/forms';
 import { DropdownModule } from 'primeng/dropdown';
-import { DepotService } from '../../../../depot/application/depot.service';
-import { Depot } from '../../../../depot/domain/object/depot';
-import { Area } from '../../../../area/domain/object/area';
-import { AreaService } from '../../../../area/application/area.service';
 import { User } from '../../../../user/domain/object/user';
 import { TableModule } from 'primeng/table';
 import { CalendarModule } from 'primeng/calendar';
@@ -14,14 +10,23 @@ import { Table } from 'primeng/table';
 import {UserService} from "../../../../user/application/user.service";
 import {ReportRequest} from "../../../domain/api/reportRequest";
 import {ConfirmedEntry} from "../../../../entry/domain/object/confirmedEntry";
-import {EntryService} from "../../../../entry/application/entry.service";
 import Swal from "sweetalert2";
-import writtenNumber from "written-number";
-import {PdfService} from "../../../../entry/application/pdf.service";
 import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/log-view/log-view.component";
 import {NgIf} from "@angular/common";
 import {InputTextModule} from "primeng/inputtext";
 import {ApplicantService} from "../../../../applicant/application/applicant.service";
+import {ZoneService} from "../../../../zone/application/zone.service";
+import {RoadService} from "../../../../road/application/road.service";
+import {ProgramService} from "../../../../program/application/program.service";
+import {ActivityService} from "../../../../activity/application/activity.service";
+import {Zone} from "../../../../zone/domain/object/zone";
+import {Road} from "../../../../road/domain/object/road";
+import {Program} from "../../../../program/domain/object/program";
+import {Activity} from "../../../../activity/domain/object/activity";
+import {MayoraltyService} from "../../../../mayoralty/application/mayoralty.service";
+import {Mayoralty} from "../../../../mayoralty/domain/object/mayoralty";
+import {Maintenance} from "../../../../maintenance/domain/object/maintenance";
+import {MaintenanceService} from "../../../../maintenance/application/maintenance.service";
 
 @Component({
   selector: 'app-pdfmake-view',
@@ -33,11 +38,13 @@ import {ApplicantService} from "../../../../applicant/application/applicant.serv
 export class ReportViewComponent implements OnInit {
 
   private readonly applicantService = inject(ApplicantService);
-  depots: Depot[] = [];
-  areas: Area[] = [];
-  users: User[] = [];
+  programs: Program[] = [];
+  zones: Zone[] = [];
+  roads: Road[] = [];
+  activities: Activity[] = [];
+  mayoraltyList: Mayoralty[] = [];
   reportRequest: ReportRequest = {};
-  movements: ConfirmedEntry[] = [];
+  movements: Maintenance[] = [];
   @ViewChild('dt', { static: false }) dt?: Table;
   public loading: boolean = false;
   public showLogs: boolean = false;
@@ -46,32 +53,61 @@ export class ReportViewComponent implements OnInit {
   public userData: User;
 
   constructor(
-    private readonly depotService: DepotService,
-    private readonly areaService: AreaService,
+    private readonly zoneService: ZoneService,
+    private readonly roadService: RoadService,
     private readonly userService: UserService,
-    private readonly entryService: EntryService,
-    public pdfService: PdfService
+    private readonly programService: ProgramService,
+    private readonly activityService: ActivityService,
+    private readonly mayoraltyService: MayoraltyService,
+    private readonly maintenanceService: MaintenanceService
   ) {}
 
   ngOnInit(): void {
 
     this.getUserBySession();
 
-    this.areaService.findAll().subscribe({
-      next: (areas: Area[]) => {
-        this.areas = areas.find(a => a.active) ? areas.filter(a => a.active) : areas;
+    this.zoneService.findAll().subscribe({
+      next: (zones: Zone[]) => {
+        this.zones = zones.find(a => a.active) ? zones.filter(a => a.active) : zones;
       },
       error: (err) => {
-        console.error('Error cargando areas:', err);
+        console.error('Error cargando zonas:', err);
       },
     });
 
-    this.userService.findAll().subscribe({
-      next: (users: User[]) => {
-        this.users = users.find(u => u.active) ? users.filter(u => u.active) : users;
+    this.roadService.findAll().subscribe({
+      next: (roads: Road[]) => {
+        this.roads = roads.find(u => u.active) ? roads.filter(u => u.active) : roads;
       },
       error: (err) => {
-        console.error('Error cargando users:', err);
+        console.error('Error cargando vialidades:', err);
+      },
+    });
+
+    this.programService.findAll().subscribe({
+      next: (programs: Program[]) => {
+        this.programs = programs.find(u => u.active) ? programs.filter(u => u.active) : programs;
+      },
+      error: (err) => {
+        console.error('Error cargando programas:', err);
+      },
+    });
+
+    this.activityService.findAll().subscribe({
+      next: (activities: Activity[]) => {
+        this.activities = activities.find(u => u.active) ? activities.filter(u => u.active) : activities;
+      },
+      error: (err) => {
+        console.error('Error cargando actividades:', err);
+      },
+    });
+
+    this.mayoraltyService.findAll().subscribe({
+      next: (mayoraltyList: Mayoralty[]) => {
+        this.mayoraltyList = mayoraltyList.find(u => u.active) ? mayoraltyList.filter(u => u.active) : mayoraltyList;
+      },
+      error: (err) => {
+        console.error('Error cargando alcaldias:', err);
       },
     });
 
@@ -85,10 +121,6 @@ export class ReportViewComponent implements OnInit {
       next: (data) => {
         if(data) {
           this.userData = data;
-          this.depots = data.depotList ? data.depotList : [];
-          if(this.depots && this.depots.length > 0){
-            this.depots = this.depots.filter(d => d.active);
-          }
           this.loading = false;
         }
       },
@@ -101,22 +133,14 @@ export class ReportViewComponent implements OnInit {
 
   public getReport() {
     if(this.reportRequest.startDate != null && this.reportRequest.endDate != null){
-      if(this.reportRequest.depot == null && this.userData.profile.profile === 'Almacenista'){
-        Swal.fire(
-          'Error',
-          'Selecciona un almacén para generar el reporte',
-          'error'
-        )
-        return;
-      }
       this.loading = true;
-      this.entryService.findReport(this.reportRequest).subscribe({
+      this.maintenanceService.findReport(this.reportRequest).subscribe({
         next: (report: ConfirmedEntry[]) => {
           this.movements = report;
           this.loading = false;
         },
         error: (err) => {
-          console.error('Error cargando users:', err);
+          console.error('Error cargando registros:', err);
           this.loading = false;
         },
       });
@@ -138,34 +162,34 @@ export class ReportViewComponent implements OnInit {
       }
 
       const headers = [
-        'FOLIO',
         'FECHA',
-        'ALMACEN',
-        'DESPACHADOR',
-        'RECIBE',
+        'VIALIDAD',
+        'ACTIVIDAD_REALIZADA',
+        'COORDENADA_X',
+        'COORDENADA_Y',
+        'ALCALDÍA',
+        'LUMINARIOS_VIALES',
+        'LUMINARIOS_PEATONALES',
+        'LUMINARIOS_EN_SERVICIO',
+        'ZONA_O_CUADRANTE',
         'TIPO',
-        'DOCUMENTO_SOLICITA',
-        'MATERIAL',
-        'CANTIDAD',
-        'UNIDAD',
-        'ESTATUS',
+        'PROGRAMA'
       ];
 
-      const dataReport = data.flatMap((m) =>
-        m.materialList.map((mat: any) => ({
-          FOLIO: m.folio,
+      const dataReport = data.map((m) => ({
           FECHA: m.date,
-          ALMACEN: m.depot?.name ?? '',
-          DESPACHADOR: m.userDispatcher?.name ?? '',
-          RECIBE: m.userReceiver?.name ?? '',
-          TIPO: m.io ? 'Entrada' : 'Salida',
-          DOCUMENTO_SOLICITA: m.applicantDocument ?? '',
-          MATERIAL: mat.material?.description ?? '',
-          CANTIDAD: mat.quantity ?? '',
-          UNIDAD: mat.material?.unit?.name ?? '',
-          ESTATUS: mat.status?.status ?? '',
-        }))
-      );
+          VIALIDAD: m.road?.name ?? '',
+          ACTIVIDAD_REALIZADA: m.activity?.name ?? '',
+          COORDENADA_X: m.coordinateX ?? '',
+          COORDENADA_Y: m.coordinateY ?? '',
+          ALCALDIA: m.mayoralty.name ?? '',
+          LUMINARIOS_VIALES: m.streetlights ?? '',
+          LUMINARIOS_PEATONALES: m.pedestrianLighting ?? '',
+          LUMINARIOS_EN_SERVICIO: m.luminariesInService ?? '',
+          ZONA_O_CUADRANTE: m.zone?.name ?? '',
+          TIPO: m.type?.name ?? '',
+          PROGRAMA: m.program?.name ?? '',
+        }));
 
       const ws = XLSX.utils.json_to_sheet(dataReport, { header: headers });
 
@@ -178,143 +202,17 @@ export class ReportViewComponent implements OnInit {
       (ws as any)['!cols'] = colWidths;
 
       const wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, ws, 'Reporte Almacenes');
+      XLSX.utils.book_append_sheet(wb, ws, 'Reporte Mantenimiento');
 
       const buf = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
       const fileName =
-        'Reporte_Almacenes_DAP_' + new Date().toLocaleDateString() + '.xlsx';
+        'Reporte_Mantenimiento_DAP_' + new Date().toLocaleDateString() + '.xlsx';
       saveAs(new Blob([buf], { type: 'application/octet-stream' }), fileName);
     } else {
       Swal.fire('Error', 'No es posible generar un reporte sin registros', 'error');
     }
   }
 
-
-public getPDF(confirmedEntry: ConfirmedEntry){
-    if(confirmedEntry && confirmedEntry.io){
-        this.generatePDFEntry(confirmedEntry);
-    } else if(!confirmedEntry.io){
-        this.generatePDFOutput(confirmedEntry);
-    } else {
-        Swal.fire('Error', 'No es posible generar el PDF', 'error');
-    }
-}
-
-  async generatePDFEntry(confirmedEntry: ConfirmedEntry): Promise<void> {
-    const datos = [
-      { text: confirmedEntry.depot.name, x: 162, y: 142 },
-      { text: confirmedEntry.depot.key, x: 710, y: 111 },
-      { text: this.getCurrentDay(), x: 660, y: 152 },
-      { text: this.getCurrentMonth(), x: 700, y: 152 },
-      { text: this.getCurrentYear(), x: 735, y: 152 },
-      { text: confirmedEntry.folio, x: 654, y: 184 },
-      { text: confirmedEntry.userReceiver.area.name, x: 70, y: 182 },
-      { text: confirmedEntry.userDispatcher.name, x: 610, y: 485, size: 7 },
-      { text: confirmedEntry.userReceiver.name, x: 95, y: 485, size: 7 },
-    ];
-
-    let startY = 236;
-    for (let i = 0; i < confirmedEntry.materialList.length; i++) {
-      datos.push({
-        text: confirmedEntry.materialList[i].material.description,
-        x: 264,
-        y: startY + (i * 12) - 3.5,
-        size: 7
-      });
-      datos.push({
-        text: confirmedEntry.materialList[i].material.unit.name,
-        x: 487,
-        y: startY + (i * 12) - 3.5,
-        size: 7
-      });
-      datos.push({
-        text: String(confirmedEntry.materialList[i].status.status),
-        x: 523,
-        y: startY + (i * 12) - 3.5,
-        size: 7
-      });
-      datos.push({
-        text: String(confirmedEntry.materialList[i].quantity),
-        x: 582,
-        y: startY + (i * 12) - 3.5,
-        size: 7
-      });
-      datos.push({
-        text: writtenNumber(confirmedEntry.materialList[i].quantity, { lang: 'es' }),
-        x: 610,
-        y: startY + (i * 12) - 3.5,
-        size: 7
-      });
-    }
-    const pdfBytes = await this.pdfService.fillPdfFromTemplate('assets/formatoEntrada.pdf', datos);
-    this.pdfService.openPdfInBrowser(pdfBytes);
-  }
-
-  async generatePDFOutput(confirmedEntry: ConfirmedEntry): Promise<void> {
-    const datos = [
-      { text: confirmedEntry.depot.name, x: 155, y: 142 },
-      { text: confirmedEntry.depot.key, x: 670, y: 142 },
-      { text: confirmedEntry.applicantDocument? confirmedEntry.applicantDocument: "" , x: 588, y: 177, size: 9 },
-      { text: this.getCurrentDay(), x: 545, y: 110 },
-      { text: this.getCurrentMonth(), x: 582, y: 110 },
-      { text: this.getCurrentYear(), x: 618, y: 110 },
-      { text: confirmedEntry.folio, x: 664, y: 100, size: 10 },
-      { text: confirmedEntry.userReceiver.area.name, x: 70, y: 177 },
-      { text: confirmedEntry.userDispatcher.name, x: 460, y: 524, size: 6 },
-      { text: confirmedEntry.userReceiver.name, x: 600, y: 524, size: 6 },
-      { text: confirmedEntry.serviceBoos? confirmedEntry.serviceBoos: "", x: 75, y: 524, size: 6 },
-      { text: confirmedEntry.jud? confirmedEntry.jud: "", x: 255, y: 524, size: 6 },
-    ];
-
-    let startY = 264;
-    for (let i = 0; i < confirmedEntry.materialList.length; i++) {
-      datos.push({
-        text: confirmedEntry.materialList[i].material.description,
-        x: 480,
-        y: startY + (i * 13) - 2.5,
-        size: 7
-      });
-      datos.push({
-        text: String(confirmedEntry.materialList[i].quantity),
-        x: 435,
-        y: startY + (i * 13) - 2.5,
-        size: 7
-      });
-      datos.push({
-        text: confirmedEntry.materialList[i].material.unit.name,
-        x: 325,
-        y: startY + (i * 13) - 2.5,
-        size: 7
-      });
-      datos.push({
-        text: String(confirmedEntry.materialList[i].status.status),
-        x: 362,
-        y: startY + (i * 13) - 2.5,
-        size: 7
-      });
-      datos.push({
-        text: String(confirmedEntry.materialList[i].quantity),
-        x: 282,
-        y: startY + (i * 13) - 2.5,
-        size: 7
-      });
-    }
-    const pdfBytes = await this.pdfService.fillPdfFromTemplate('assets/formatoSalida.pdf', datos);
-    this.pdfService.openPdfInBrowser(pdfBytes);
-  }
-
-  getCurrentDay(): string {
-    return new Intl.DateTimeFormat('es-ES', { day: '2-digit' }).format(new Date());
-  }
-
-  getCurrentMonth(): string {
-    return new Intl.DateTimeFormat('es-ES', { month: '2-digit' }).format(new Date());
-  }
-
-  getCurrentYear(): string {
-    const today = new Date();
-    return today.getFullYear().toString();
-  }
 
   public viewLogs(id: number): void {
     this.entity = id;

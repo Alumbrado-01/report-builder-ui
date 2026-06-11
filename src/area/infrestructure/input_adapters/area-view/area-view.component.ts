@@ -15,7 +15,7 @@ import {User} from "../../../../user/domain/object/user";
 import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/log-view/log-view.component";
 
 @Component({
-  selector: 'app-road-view',
+  selector: 'app-mayoralty-view',
   standalone: true,
   imports: [
     CommonModule,
