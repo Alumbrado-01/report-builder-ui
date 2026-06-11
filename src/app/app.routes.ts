@@ -2,7 +2,6 @@ import { AreaViewComponent } from '../area/infrestructure/input_adapters/area-vi
 import { Routes } from '@angular/router';
 import { UserViewComponent } from '../user/infrestructure/input_adapters/user-view/user-view.component';
 import { BeginningViewComponent } from '../beginning/infrestructure/input_adapters/beginning-view/beginning-view.component';
-import { ReportViewComponent } from '../pdfmake/infrestructure/input_adapters/pdfmake-view/report-view.component';
 import { LoginViewComponent } from '../login/infrestructure/input_adapters/login-view/login-view.component';
 import {authGuard} from "./Services/autenticationService/auth.guard";
 import {
@@ -12,6 +11,8 @@ import {RoadViewComponent} from "../road/infrestructure/input_adapters/road-view
 import {ActivityViewComponent} from "../activity/infrestructure/input_adapters/activity-view/activity-view.component";
 import {TypeViewComponent} from "../type/infrestructure/input_adapters/type-view/type-view.component";
 import {ProgramViewComponent} from "../program/infrestructure/input_adapters/program-view/program-view.component";
+import {ZoneViewComponent} from "../zone/infrestructure/input_adapters/zone-view/zone-view.component";
+import {ReportViewComponent} from "../pdfmake/infrestructure/input_adapters/pdfmake-view/report-view.component";
 
 export const routes: Routes = [
   { path: '', component: LoginViewComponent },
@@ -55,9 +56,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
     data: { roles: ['Administrador'] }
   },
-  { path: 'inventario',
+  { path: 'zona',
+    component: ZoneViewComponent,
+    canActivate: [authGuard],
+    data: { roles: ['Administrador'] }
+  },
+  { path: 'reporteria',
     component: ReportViewComponent,
     canActivate: [authGuard],
-    data: { roles: ['Administrador', 'Almacenista'] }
+    data: { roles: ['Administrador'] }
   }
 ];

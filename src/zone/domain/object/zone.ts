@@ -1,5 +1,5 @@
 export interface Zone {
-  idZone: number;
-  name: string;
-  active: boolean;
+  idZone?: number;
+  name?: string;
+  active?: boolean;
 }

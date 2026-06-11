@@ -80,9 +80,10 @@ export class ActivityViewComponent implements OnInit {
     this.dt!.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
-  createRoad() {
+  createActivity() {
+    this.activity={};
     this.dialogMode = 'create';
-    this.dialogTitle = 'Crear Nueva Vialidad';
+    this.dialogTitle = 'Crear Nueva Actividad';
     this.visible = true;
   }
 
@@ -100,9 +101,9 @@ export class ActivityViewComponent implements OnInit {
     );
   }
 
-  saveRoad() {
-    const roadExists = this.verifyActivityExists();
-    if (roadExists){
+  saveActivity() {
+    const activityExists = this.verifyActivityExists();
+    if (activityExists){
       this.visible = false;
       Swal.fire({
         title: `La actividad "${this.activity.name}" ya existe`,

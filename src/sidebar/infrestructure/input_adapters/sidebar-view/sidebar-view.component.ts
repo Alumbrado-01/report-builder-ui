@@ -69,7 +69,7 @@ export class SidebarViewComponent implements OnInit {
             {
               label: 'Cuadrante/Zona',
               icon: 'pi pi-stop',
-              routerLink: '/mantenimiento',
+              routerLink: '/zona',
               visible: this.userData.profile.profile === 'Administrador',
             },
             {
@@ -86,7 +86,7 @@ export class SidebarViewComponent implements OnInit {
             },
             { label: 'Reporteria',
               icon: 'pi pi-book',
-              routerLink: '/inventario'
+              routerLink: '/reporteria'
             },
             {
               label: 'Áreas',

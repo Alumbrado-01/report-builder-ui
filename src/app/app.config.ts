@@ -32,6 +32,8 @@ import {TypeService} from "../type/application/type.service";
 import {ITypeService} from "../type/infrestructure/input_ports/ITypeService";
 import {IProgramService} from "../program/infrestructure/input_ports/IProgramService";
 import {ProgramService} from "../program/application/program.service";
+import {IZoneService} from "../zone/infrestructure/input_ports/IZoneService";
+import {ZoneService} from "../zone/application/zone.service";
 
 export const appConfig: ApplicationConfig = {
   providers: [
@@ -54,5 +56,6 @@ export const appConfig: ApplicationConfig = {
     { provide: IMayoraltyService, useClass: MayoraltyService},
     { provide: ITypeService, useClass: TypeService},
     { provide: IProgramService, useClass: ProgramService},
+    { provide: IZoneService, useClass: ZoneService},
   ],
 };

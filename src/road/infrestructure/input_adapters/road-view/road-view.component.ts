@@ -111,6 +111,7 @@ export class RoadViewComponent implements OnInit {
   }
 
   createRoad() {
+    this.road={};
     this.dialogMode = 'create';
     this.dialogTitle = 'Crear Nueva Vialidad';
     this.visible = true;

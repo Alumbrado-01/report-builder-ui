@@ -100,8 +100,9 @@ export class TypeViewComponent implements OnInit {
   }
 
   createType() {
+    this.type= {};
     this.dialogMode = 'create';
-    this.dialogTitle = 'Crear Nueva Vialidad';
+    this.dialogTitle = 'Crear Nuevo Tipo de Atención';
     this.visible = true;
   }
 

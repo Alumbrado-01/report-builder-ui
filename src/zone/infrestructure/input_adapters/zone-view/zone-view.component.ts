@@ -7,12 +7,12 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DropdownModule } from 'primeng/dropdown';
 import { FormsModule } from '@angular/forms';
 import { AutoCompleteModule } from 'primeng/autocomplete';
-import { Area } from '../../../domain/object/area';
-import { IAreaService } from '../../input_ports/IAreaService';
-import { AreaRequest } from '../../../domain/api/areaRequest';
 import Swal from "sweetalert2";
 import {User} from "../../../../user/domain/object/user";
 import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/log-view/log-view.component";
+import {ZoneRequest} from "../../../domain/api/zoneRequest";
+import {IZoneService} from "../../input_ports/IZoneService";
+import {Zone} from "../../../domain/object/zone";
 
 @Component({
   selector: 'app-mayoralty-view',
@@ -28,35 +28,28 @@ import {LogViewComponent} from "../../../../log/infrestructure/input_adapters/lo
     AutoCompleteModule,
     LogViewComponent,
   ],
-  templateUrl: './area-view.component.html',
-  styleUrl: './area-view.component.scss',
+  templateUrl: './zone-view.component.html',
+  styleUrl: './zone-view.component.scss',
 })
-export class AreaViewComponent implements OnInit {
-  private readonly svc = inject(IAreaService);
+export class ZoneViewComponent implements OnInit {
 
-  areas: Area[] = [];
-  filteredAreas: Area[] = [];
+  private readonly zoneService = inject(IZoneService);
+
+  zone: Zone = {};
+  zoneList: Zone[] = [];
   loading = false;
   @ViewChild('dt') public dt: any;
 
-  // Propiedades para el diálogo
   visible: boolean = false;
   dialogMode: 'create' | 'edit' = 'create';
   dialogTitle: string = '';
   public showLogs: boolean = false;
   public entity: number;
-  public table: string = 'area';
+  public table: string = 'zone';
   public userData: User;
 
-  // Propiedad para edición/creación
-  editingArea: Area = {
-    idArea: 0,
-    name: '',
-    active: true,
-  };
-
   ngOnInit(): void {
-    this.load();
+    this.loadActivities();
     this.getUserFromLocalStorage();
   }
 
@@ -68,16 +61,15 @@ export class AreaViewComponent implements OnInit {
     }
   }
 
-  private load(): void {
+  private loadActivities(): void {
     this.loading = true;
-    this.svc.findAll().subscribe({
+    this.zoneService.findAll().subscribe({
       next: (data) => {
-        this.areas = data;
-        this.filteredAreas = data;
+        this.zoneList = data;
         this.loading = false;
       },
       error: (err) => {
-        console.error('Error cargando áreas:', err);
+        console.error('Error cargando vialidades:', err);
         this.loading = false;
       },
     });
@@ -88,37 +80,33 @@ export class AreaViewComponent implements OnInit {
     this.dt!.filterGlobal(($event.target as HTMLInputElement).value, stringVal);
   }
 
-  // Funciones de diálogo y edición/creación
-  createArea() {
+  createRoad() {
+    this.zone={};
     this.dialogMode = 'create';
-    this.dialogTitle = 'Crear Nueva Área';
-    this.editingArea = {
-      idArea: 0,
-      name: '',
-      active: true,
-    };
+    this.dialogTitle = 'Crear Nueva Zona';
     this.visible = true;
   }
 
-  showDialog(area: Area) {
+  showDialog(zone: Zone) {
     this.dialogMode = 'edit';
-    this.dialogTitle = 'Editar Área';
-    this.editingArea = { ...area };
+    this.dialogTitle = 'Editar Actividad';
+    this.zone = { ...zone };
     this.visible = true;
   }
 
-    public verifyAreaExists(): boolean {
-    return this.areas.some(area =>
-      area.name?.toLowerCase().trim() === this.editingArea.name?.toLowerCase().trim() &&
-      area.idArea !== this.editingArea.idArea
+    public verifyZoneExists(): boolean {
+    return this.zoneList.some(zone =>
+      zone.name?.toLowerCase().trim() === this.zone.name?.toLowerCase().trim() &&
+      zone.idZone !== this.zone.idZone
     );
   }
-  saveArea() {
-    const areaExists = this.verifyAreaExists();
-    if (areaExists){
+
+  saveRoad() {
+    const roadExists = this.verifyZoneExists();
+    if (roadExists){
       this.visible = false;
       Swal.fire({
-        title: `El área "${this.editingArea.name}" ya existe`,
+        title: `La actividad "${this.zone.name}" ya existe`,
         icon: "warning",
         draggable: true
       });
@@ -137,27 +125,27 @@ export class AreaViewComponent implements OnInit {
          draggable: true
        });
      }
-    if (this.editingArea) {
-      const requestData: AreaRequest = {
+    if (this.zone) {
+      const requestData: ZoneRequest = {
         modelRequest: {
           ...(this.dialogMode === 'edit'
-            ? { idArea: this.editingArea.idArea }
+            ? { idZone: this.zone.idZone }
             : {}),
-          name: this.editingArea.name,
-          active: this.editingArea.active,
+          name: this.zone.name,
+          active: this.zone.active,
         },
         user: this.userData,
       };
 
       const action =
         this.dialogMode === 'create'
-          ? this.svc.create(requestData)
-          : this.svc.update(requestData);
+          ? this.zoneService.create(requestData)
+          : this.zoneService.update(requestData);
 
       action.subscribe({
         next: () => {
           this.visible = false;
-          this.load(); // Recargar la lista
+          this.loadActivities();
         },
         error: (err) => {
           console.error(
