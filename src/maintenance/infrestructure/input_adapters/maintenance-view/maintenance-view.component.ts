@@ -66,6 +66,7 @@ export class MaintenanceViewComponent implements OnInit {
   public entity: number;
   public table: string = 'maintenance';
   public maintenance: Maintenance = {};
+  public dialogMode: 'create' | 'edit' = 'create';
 
   @ViewChild('dt') public dt: any;
 
@@ -221,7 +222,6 @@ export class MaintenanceViewComponent implements OnInit {
         modelRequest: maintenance,
         user: this.userData
       }
-      console.log(request);
       this.maintenanceService.create(request).subscribe({
         next: (data) => {
           Swal.fire('¡Éxito!', 'Se guardo el registro.', 'success');
@@ -274,6 +274,13 @@ export class MaintenanceViewComponent implements OnInit {
     if (this.maintenance?.road) {
       this.maintenance.mayoralty = this.maintenance?.road.mayoralty
     }
+  }
+
+  showDialog(maintenance: Maintenance) {
+    this.dialogMode = 'edit';
+    this.dialogTitle = 'Editar Mantenimiento';
+    this.maintenance = { ...maintenance };
+    this.visible = true;
   }
 
   validateCoordinates() {

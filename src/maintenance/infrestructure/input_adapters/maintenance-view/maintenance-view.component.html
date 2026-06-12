@@ -76,6 +76,20 @@
           <td>{{ maintenance.luminariesInService }}</td>
           <td>{{ maintenance.zone.name }}</td>
           <td>{{ maintenance.type.name }}</td>
+          <td class="text-center">
+            <p-button
+              *ngIf="userData.profile.profile === 'Administrador'"
+              (onClick)="showDialog(maintenance)"
+              icon="pi pi-pencil"
+              styleClass="p-button-text"
+              [style]="{ 'margin-right': '.5rem' }"
+            ></p-button>
+            <p-button
+              (onClick)="viewLogs(maintenance.idMaintenance)"
+              icon="pi pi-book"
+              styleClass="p-button-text p-button-danger"
+            ></p-button>
+          </td>
         </tr>
       </ng-template>
       <ng-template pTemplate="emptymessage">
