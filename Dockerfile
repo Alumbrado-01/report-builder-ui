@@ -14,6 +14,6 @@ RUN rm -rf /etc/nginx/conf.d/default.conf
 COPY --from=build /app/dist/report_builder_ui/browser /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-EXPOSE 8081
+EXPOSE 8082
 
 CMD ["nginx", "-g", "daemon off;"]
